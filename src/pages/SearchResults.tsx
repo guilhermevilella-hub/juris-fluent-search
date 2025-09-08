@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Search, Filter, SlidersHorizontal, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ButtonIjus } from "@/components/ui/button-ijus";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -207,15 +208,27 @@ const SearchResults = () => {
                     className="animate-fade-in"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <JurisprudenceCard {...result} />
+                    <JurisprudenceCard {...result} searchQuery={searchQuery} />
+                    {/* Progress feedback every 5 results */}
+                    {(index + 1) % 5 === 0 && index < results.length - 1 && (
+                      <div className="text-center py-4 my-6 border-y border-border/50 bg-muted/20 rounded-lg">
+                        <p className="text-sm text-muted-foreground">
+                          Você já viu <span className="font-semibold text-foreground">{index + 1}</span> jurisprudências relevantes.
+                          {results.length - index - 1 > 0 && (
+                            <span> Continue, mais <span className="font-semibold text-primary">{Math.min(3, results.length - index - 1)}</span> podem surpreender você.</span>
+                          )}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ))}
                 
                 {/* Load More / Pagination */}
                 <div className="text-center pt-8">
-                  <Button variant="outline" className="min-w-48">
+                  <ButtonIjus className="min-w-48 group">
                     Carregar mais resultados
-                  </Button>
+                    <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                  </ButtonIjus>
                 </div>
               </div>
             )}

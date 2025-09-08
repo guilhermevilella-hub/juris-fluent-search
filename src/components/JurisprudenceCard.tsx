@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Copy, ExternalLink, BookOpen, Share2, Calendar, Building, User, FileText, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Copy, ExternalLink, BookOpen, Share2, Calendar, Building, User, FileText, Eye, Check, Star, Target, Search } from "lucide-react";
+import { ButtonIjus } from "@/components/ui/button-ijus";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,7 @@ interface JurisprudenceCardProps {
   numero_processo: string;
   tags: string[];
   score?: number;
+  searchQuery?: string;
 }
 
 const JurisprudenceCard = ({
@@ -28,14 +29,18 @@ const JurisprudenceCard = ({
   data_julgamento,
   numero_processo,
   tags,
-  score
+  score,
+  searchQuery
 }: JurisprudenceCardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
     // Simulate paywall trigger for non-subscribers
     showPaywall();
   };
@@ -71,14 +76,94 @@ const JurisprudenceCard = ({
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
+  const highlightSearchTerms = (text: string) => {
+    if (!searchQuery) return text;
+    
+    const searchTerms = searchQuery.toLowerCase().split(' ').filter(term => term.length > 2);
+    let highlightedText = text;
+    
+    searchTerms.forEach(term => {
+      const regex = new RegExp(`(${term})`, 'gi');
+      highlightedText = highlightedText.replace(regex, '<mark class="bg-blue-elec/20 text-blue-elec font-medium px-1 rounded">$1</mark>');
+    });
+    
+    // Highlight legal terms in bold
+    const legalTerms = ['ementa', 'relator', 'indenização', 'decisão', 'sentença', 'tribunal', 'responsabilidade', 'civil', 'consumidor'];
+    legalTerms.forEach(term => {
+      const regex = new RegExp(`\\b(${term})\\b`, 'gi');
+      highlightedText = highlightedText.replace(regex, '<strong>$1</strong>');
+    });
+    
+    return highlightedText;
+  };
+
+  const getRelevanceBadge = () => {
+    if (!score) return null;
+    
+    const percentage = Math.round(score * 100);
+    let badgeClass = "bg-muted text-muted-foreground";
+    let icon = Target;
+    
+    if (percentage >= 90) {
+      badgeClass = "bg-success text-success-foreground";
+      icon = Star;
+    } else if (percentage >= 70) {
+      badgeClass = "bg-warning text-warning-foreground";
+      icon = Target;
+    }
+    
+    const IconComponent = icon;
+    
+    return (
+      <div 
+        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${badgeClass}`}
+        title="Calculado com base na semelhança entre sua busca e esta jurisprudência"
+      >
+        <IconComponent className="w-3 h-3" />
+        {percentage}%
+      </div>
+    );
+  };
+
+  const getTribunalColor = () => {
+    switch (tribunal) {
+      case 'STF': return 'border-l-success';
+      case 'STJ': return 'border-l-primary';
+      default: return 'border-l-muted-foreground';
+    }
+  };
+
+  const getTagColor = (tag: string) => {
+    const tagLower = tag.toLowerCase();
+    if (tagLower.includes('consumidor')) return 'bg-accent-blue/10 text-accent-blue border-accent-blue/20';
+    if (tagLower.includes('família') || tagLower.includes('family')) return 'bg-purple-500/10 text-purple-700 border-purple-500/20';
+    if (tagLower.includes('trabalho') || tagLower.includes('trabalhista')) return 'bg-green-500/10 text-green-700 border-green-500/20';
+    if (tagLower.includes('penal') || tagLower.includes('criminal')) return 'bg-red-500/10 text-red-700 border-red-500/20';
+    return 'bg-muted text-muted-foreground border-muted-foreground/20';
+  };
+
+  const handleTagClick = (tag: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Navigate to search with this tag as filter
+    navigate(`/resultados?q=${encodeURIComponent(tag)}`);
+  };
+
+  const handleSimilarDecisions = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast({
+      title: "Decisões semelhantes",
+      description: "Carregando jurisprudências relacionadas...",
+    });
+  };
+
   return (
     <div 
-      className="card-jurisprudence cursor-pointer animate-fade-in"
+      className={`card-jurisprudence cursor-pointer animate-fade-in border-l-4 ${getTribunalColor()} hover:shadow-lg hover:border-primary/20 transition-all duration-200`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => navigate(`/documento/${id}`)}
     >
-      {/* Header with metadata */}
+      {/* Header with metadata and relevance badge */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
           <Building className="w-3 h-3" />
@@ -86,21 +171,18 @@ const JurisprudenceCard = ({
           <span>•</span>
           <span>{orgao_julgador}</span>
         </div>
-        {score && (
-          <Badge variant="secondary" className="text-xs">
-            Relevância: {(score * 100).toFixed(0)}%
-          </Badge>
-        )}
+        {getRelevanceBadge()}
       </div>
 
       {/* Title and Ementa */}
       <div className="mb-4">
-        <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2 leading-tight">
+        <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-2 leading-tight">
           {titulo}
         </h3>
-        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-          {ementa}
-        </p>
+        <div 
+          className="text-sm text-muted-foreground line-clamp-3 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: highlightSearchTerms(ementa) }}
+        />
       </div>
 
       {/* Metadata row */}
@@ -119,58 +201,80 @@ const JurisprudenceCard = ({
         </div>
       </div>
 
-      {/* Tags */}
+      {/* Interactive Tags */}
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-4">
           {tags.slice(0, 3).map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
+            <Badge 
+              key={index} 
+              className={`text-xs cursor-pointer border transition-all duration-200 hover:shadow-sm ${getTagColor(tag)}`}
+              onClick={(e) => handleTagClick(tag, e)}
+            >
               {tag}
             </Badge>
           ))}
           {tags.length > 3 && (
-            <Badge variant="outline" className="text-xs text-muted-foreground">
+            <Badge className="text-xs text-muted-foreground bg-muted border-muted-foreground/20">
               +{tags.length - 3}
             </Badge>
           )}
         </div>
       )}
 
-      {/* Actions */}
+      {/* Enhanced Actions */}
       <div className="flex items-center justify-between pt-3 border-t border-border">
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
+          <ButtonIjus
+            variant="default"
             size="sm"
-            className="h-8 px-2 text-primary hover:text-primary-hover"
+            className="group"
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/documento/${id}`);
             }}
           >
-            <Eye className="w-4 h-4 mr-1" />
+            <Eye className="w-4 h-4" />
             Abrir
-          </Button>
-          <Button
-            variant="ghost"
+          </ButtonIjus>
+          <ButtonIjus
+            variant={isCopied ? "default" : "outline"}
             size="sm"
-            className="h-8 px-2 text-accent-blue hover:text-accent-blue-hover"
+            className="group"
             onClick={handleCopy}
             title="Assine para copiar este conteúdo"
           >
-            <Copy className="w-4 h-4 mr-1" />
-            Copiar
-          </Button>
+            {isCopied ? (
+              <>
+                <Check className="w-4 h-4" />
+                Copiado!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                Copiar
+              </>
+            )}
+          </ButtonIjus>
+          <ButtonIjus
+            variant="ghost"
+            size="sm"
+            className="group"
+            onClick={handleSimilarDecisions}
+          >
+            <Search className="w-4 h-4" />
+            Similares
+          </ButtonIjus>
         </div>
         
         <div className="flex items-center space-x-1">
-          <Button
+          <ButtonIjus
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+            className="!size-8 !p-0"
             onClick={handleShare}
           >
             <Share2 className="w-4 h-4" />
-          </Button>
+          </ButtonIjus>
         </div>
       </div>
 
