@@ -79,6 +79,14 @@
     --radius-xl: 1rem;
     --radius-2xl: 1.5rem;
 
+    /* iJus Blue Design Tokens */
+    --ijus-blue-deep: #0B1736;
+    --ijus-blue-mid: #0E1C4E;
+    --ijus-blue-ink: #13307D;
+    --ijus-blue-elec: #206CFF;
+    --ijus-cyan-glow: #00E0FF;
+    --ijus-white: #FFFFFF;
+    
     /* Deep Blue Gradients for Action Buttons */
     --blue-deep: #0B1736;
     --blue-mid: #0E1C4E;
@@ -160,9 +168,42 @@
 }
 
 @layer components {
+  /* iJus Standardized Button System */
+  .btn-ijus {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 h-12 font-semibold text-white
+           border border-white/[0.08] shadow-[0_10px_22px_rgba(15,31,77,0.30)]
+           bg-[linear-gradient(135deg,var(--ijus-blue-deep)_0%,var(--ijus-blue-mid)_52%,var(--ijus-blue-ink)_100%)]
+           transition-[background,box-shadow,transform] duration-200 ease-out
+           focus:outline-none focus:ring-2 focus:ring-[rgba(32,108,255,0.45)] focus:ring-offset-2 focus:ring-offset-transparent
+           disabled:opacity-50 disabled:pointer-events-none
+           hover:bg-[linear-gradient(135deg,#102766_0%,#13389A_55%,#1A3AFF_100%)]
+           hover:shadow-[0_14px_28px_rgba(32,108,255,0.35),0_6px_18px_rgba(0,224,255,0.20)]
+           active:translate-y-[1px] active:shadow-[0_6px_14px_rgba(15,31,77,0.35)];
+  }
+  
+  .btn-ijus-icon {
+    @apply btn-ijus size-11 rounded-full p-0 aspect-square;
+  }
+  
+  .btn-ijus-outline {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-xl px-5 font-semibold
+           text-[#1A3AFF] border border-[#1A3AFF]/70 bg-transparent
+           hover:bg-[#1A3AFF]/10 transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-[rgba(32,108,255,0.45)] focus:ring-offset-2
+           disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-ijus-ghost {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-xl px-5 font-semibold
+           text-[#206CFF] bg-transparent border-0
+           hover:bg-[#206CFF]/10 transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-[rgba(32,108,255,0.45)] focus:ring-offset-2
+           disabled:opacity-50 disabled:pointer-events-none;
+  }
+
   /* Brand Button Variants */
   .btn-hero {
-    @apply bg-gradient-to-r from-accent-blue to-accent-blue-hover text-accent-blue-foreground hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 rounded-xl font-medium;
+    @apply btn-ijus;
   }
   
   .btn-primary {

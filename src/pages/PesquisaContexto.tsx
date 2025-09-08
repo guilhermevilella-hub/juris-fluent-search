@@ -68,10 +68,10 @@ const PesquisaContexto = () => {
             </div>
 
             <div className="flex justify-center">
-              <Button 
+               <Button 
                 onClick={handleAnalyze}
                 disabled={!contexto.trim() || isAnalyzing}
-                className="btn-hero px-8 py-6 text-lg"
+                className="btn-ijus px-8 py-6 text-lg group"
               >
                 {isAnalyzing ? (
                   <>
@@ -81,7 +81,7 @@ const PesquisaContexto = () => {
                 ) : (
                   <>
                     Buscar com IA
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
                   </>
                 )}
               </Button>

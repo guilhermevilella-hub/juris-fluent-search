@@ -103,10 +103,10 @@ const Home = () => {
                 />
                 <Button 
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-hero h-10"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-ijus h-10 group"
                 >
                   Buscar
-                  <ArrowRight className="w-4 h-4 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
             </form>
