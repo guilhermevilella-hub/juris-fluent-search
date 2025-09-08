@@ -75,15 +75,49 @@ const Home = () => {
 
           {/* Main Heading */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary mb-6 leading-tight animate-slide-up">
-            Jurisprudência em{' '}
-            <span className="bg-gradient-accent bg-clip-text text-transparent">
-              segundos
+            Pesquisa de{' '}
+            <span className="bg-gradient-to-r from-[#0B1736] to-[#13307D] bg-clip-text text-transparent">
+              jurisprudência
+            </span>
+            {' '}com{' '}
+            <span className="bg-gradient-to-r from-[#0B1736] to-[#13307D] bg-clip-text text-transparent">
+              Inteligência Artificial
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed animate-slide-up">
-            Pesquise de graça. Copie com 1 assinatura.
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed animate-slide-up">
+            Encontre decisões em segundos, aumente sua produtividade e tenha acesso a jurisprudências 100% reais e verificadas de fontes oficiais.
           </p>
+
+          {/* Bullet Points */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+            <div className="flex items-center justify-center md:justify-start space-x-3 animate-fade-in">
+              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-accent-blue/20 to-accent-blue/10 rounded-full flex items-center justify-center">
+                <span className="text-lg">⚡</span>
+              </div>
+              <span className="text-muted-foreground text-sm md:text-base">
+                Mais rápido e eficiente que buscas por palavras-chaves
+              </span>
+            </div>
+            
+            <div className="flex items-center justify-center md:justify-start space-x-3 animate-fade-in" style={{animationDelay: '100ms'}}>
+              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-accent-blue/20 to-accent-blue/10 rounded-full flex items-center justify-center">
+                <span className="text-lg">📚</span>
+              </div>
+              <span className="text-muted-foreground text-sm md:text-base">
+                Resultados confiáveis, direto de tribunais oficiais
+              </span>
+            </div>
+            
+            <div className="flex items-center justify-center md:justify-start space-x-3 animate-fade-in" style={{animationDelay: '200ms'}}>
+              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-accent-blue/20 to-accent-blue/10 rounded-full flex items-center justify-center">
+                <span className="text-lg">🤖</span>
+              </div>
+              <span className="text-muted-foreground text-sm md:text-base">
+                Busca por contexto com Inteligência Artificial
+              </span>
+            </div>
+          </div>
 
           {/* Hero Search */}
           <div className="max-w-2xl mx-auto mb-8 animate-scale-in">
