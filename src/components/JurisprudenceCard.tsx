@@ -4,6 +4,7 @@ import { ButtonIjus } from "@/components/ui/button-ijus";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useGamification } from "@/contexts/GamificationContext";
 
 interface JurisprudenceCardProps {
   id: string;
@@ -34,6 +35,7 @@ const JurisprudenceCard = ({
 }: JurisprudenceCardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { addXP, updateMissionProgress } = useGamification();
   const [isHovered, setIsHovered] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
@@ -41,6 +43,11 @@ const JurisprudenceCard = ({
     e.stopPropagation();
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
+    
+    // Add XP for copying
+    addXP('copy');
+    updateMissionProgress('copiar-semanal');
+    
     // Simulate paywall trigger for non-subscribers
     showPaywall();
   };
@@ -230,6 +237,8 @@ const JurisprudenceCard = ({
             className="group"
             onClick={(e) => {
               e.stopPropagation();
+              addXP('open');
+              updateMissionProgress('abrir-decisoes');
               navigate(`/documento/${id}`);
             }}
           >

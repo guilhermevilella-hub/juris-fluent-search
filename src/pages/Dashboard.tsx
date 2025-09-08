@@ -12,7 +12,12 @@ import {
   Calendar,
   Search,
   Filter,
-  ExternalLink
+  ExternalLink,
+  Award,
+  Target,
+  BarChart3,
+  Trophy,
+  Zap
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +28,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useGamification } from "@/contexts/GamificationContext";
+import { XPBar } from "@/components/gamification/XPBar";
+import { BadgeCard } from "@/components/gamification/BadgeCard";
+import { MissionsWidget } from "@/components/gamification/MissionsWidget";
+import { StatsCard } from "@/components/gamification/StatsCard";
+import { GamificationTab } from "./Dashboard-gamification-tab";
 
 // Mock user data
 const MOCK_USER = {
@@ -110,9 +121,10 @@ const MOCK_INVOICES = [
 
 const Dashboard = () => {
   const [user, setUser] = useState(MOCK_USER);
-  const [activeTab, setActiveTab] = useState("subscription");
+  const [activeTab, setActiveTab] = useState("gamification");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { badges, stats, addXP } = useGamification();
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -158,118 +170,88 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        {/* Header with XP Bar */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-primary">Minha conta</h1>
             <p className="text-muted-foreground">
-              Gerencie sua assinatura e histórico
+              Progresso, conquistas e configurações
             </p>
           </div>
-          <div className="text-right">
-            <Badge 
-              className={`${
-                user.status === 'active' 
-                  ? 'bg-success/10 text-success border-success/20' 
-                  : 'bg-warning/10 text-warning border-warning/20'
-              }`}
-            >
-              {user.status === 'active' ? 'Assinatura Ativa' : 'Pendente'}
-            </Badge>
-            <p className="text-sm text-muted-foreground mt-1">
-              Plano {user.plan}
-            </p>
+          
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            <div className="lg:min-w-[300px]">
+              <XPBar showDetails={true} />
+            </div>
+            
+            <div className="text-right">
+              <Badge 
+                className={`${
+                  user.status === 'active' 
+                    ? 'bg-success/10 text-success border-success/20' 
+                    : 'bg-warning/10 text-warning border-warning/20'
+                }`}
+              >
+                {user.status === 'active' ? 'Assinatura Ativa' : 'Pendente'}
+              </Badge>
+              <p className="text-sm text-muted-foreground mt-1">
+                Plano {user.plan}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-accent-blue/10 rounded-lg flex items-center justify-center">
-                  <Copy className="w-5 h-5 text-accent-blue" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Cópias usadas</p>
-                  <p className="text-2xl font-bold text-primary">
-                    {user.copiesUsed}
-                    <span className="text-sm text-muted-foreground font-normal">
-                      /{user.copiesLimit}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-muted-foreground">Este mês</span>
-                  <span className="text-muted-foreground">{getCopiesPercentage().toFixed(0)}%</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-accent-blue h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(getCopiesPercentage(), 100)}%` }}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Search className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Pesquisas</p>
-                  <p className="text-2xl font-bold text-primary">47</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">Este mês</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-success" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Documentos</p>
-                  <p className="text-2xl font-bold text-primary">23</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">Acessados</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-warning" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Membro desde</p>
-                  <p className="text-lg font-semibold text-primary">
-                    {formatDate(user.memberSince)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Gamification Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatsCard
+            icon={Search}
+            title="Buscas realizadas"
+            value={stats.totalSearches}
+            subtitle="este mês"
+            trend={{ value: "+12%", isPositive: true }}
+          />
+          
+          <StatsCard
+            icon={FileText}
+            title="Documentos abertos"
+            value={stats.totalDocumentsOpened}
+            subtitle="total"
+            trend={{ value: "+8", isPositive: true }}
+          />
+          
+          <StatsCard
+            icon={Copy}
+            title="Tempo economizado"
+            value={`${Math.floor(stats.timeSavedMinutes / 60)}h${stats.timeSavedMinutes % 60}m`}
+            subtitle="este mês"
+          />
+          
+          <StatsCard
+            icon={TrendingUp}
+            title="Relevância média"
+            value={`${stats.averageRelevance}%`}
+            subtitle="nas buscas"
+            trend={{ value: "Excelente!", isPositive: true }}
+          />
         </div>
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="gamification">
+              <Trophy className="w-4 h-4 mr-2" />
+              Progresso
+            </TabsTrigger>
             <TabsTrigger value="subscription">Assinatura</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
             <TabsTrigger value="preferences">Preferências</TabsTrigger>
             <TabsTrigger value="billing">Faturamento</TabsTrigger>
           </TabsList>
+
+          {/* Gamification Tab */}
+          <TabsContent value="gamification">
+            <GamificationTab />
+          </TabsContent>
 
           {/* Subscription Tab */}
           <TabsContent value="subscription" className="space-y-6">
