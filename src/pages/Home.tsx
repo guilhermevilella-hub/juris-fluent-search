@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Search, TrendingUp, Building, Clock, ArrowRight, Sparkles, Users, Shield } from "lucide-react";
+import { Search, TrendingUp, Building, Clock, ArrowRight, Sparkles, Users, Shield, FileText, Gavel, ScanSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import JurisprudenceCard from "@/components/JurisprudenceCard";
+import { GradientActionButton } from "@/components/GradientActionButton";
 
 // Mock data for recent results and trending tribunals
 const RECENT_RESULTS = [
@@ -133,97 +134,33 @@ const Home = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Pesquisa por Contexto */}
-              <Card 
-                className="group cursor-pointer border-2 border-primary/20 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+              <GradientActionButton
+                icon={<Search size={22} />}
+                title="Pesquisa por Contexto"
+                subtitle="Descreva seu caso. Encontramos jurisprudências semelhantes."
                 onClick={() => navigate('/pesquisa/contexto')}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 rounded-xl bg-accent-blue/10 group-hover:bg-primary-foreground/20 transition-colors">
-                      <Search className="w-6 h-6 text-accent-blue group-hover:text-primary-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-foreground">
-                        Pesquisa por Contexto
-                      </h3>
-                      <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80">
-                        Descreva em texto o seu caso. O sistema encontra jurisprudências semelhantes.
-                      </p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary-foreground/80 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Pesquisa por Petição */}
-              <Card 
-                className="group cursor-pointer border-2 border-primary/20 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+              />
+              
+              <GradientActionButton
+                icon={<FileText size={22} />}
+                title="Pesquisa por Petição"
+                subtitle="Envie a petição (PDF/DOC). Buscamos decisões compatíveis."
                 onClick={() => navigate('/pesquisa/peticao')}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 rounded-xl bg-accent-blue/10 group-hover:bg-primary-foreground/20 transition-colors">
-                      <Building className="w-6 h-6 text-accent-blue group-hover:text-primary-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-foreground">
-                        Pesquisa por Petição
-                      </h3>
-                      <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80">
-                        Faça upload da petição e o iJus encontra jurisprudências compatíveis.
-                      </p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary-foreground/80 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Pesquisa por Sentença */}
-              <Card 
-                className="group cursor-pointer border-2 border-primary/20 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+              />
+              
+              <GradientActionButton
+                icon={<Gavel size={22} />}
+                title="Pesquisa por Sentença"
+                subtitle="Carregue a sentença. Veja jurisprudências que a contradizem."
                 onClick={() => navigate('/pesquisa/sentenca')}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 rounded-xl bg-accent-blue/10 group-hover:bg-primary-foreground/20 transition-colors">
-                      <Shield className="w-6 h-6 text-accent-blue group-hover:text-primary-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-foreground">
-                        Pesquisa por Sentença
-                      </h3>
-                      <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80">
-                        Carregue a sentença e veja jurisprudências que contradizem a tese adotada.
-                      </p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary-foreground/80 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Raio-X do Inimigo */}
-              <Card 
-                className="group cursor-pointer border-2 border-primary/20 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+              />
+              
+              <GradientActionButton
+                icon={<ScanSearch size={22} />}
+                title="Raio-X do Inimigo"
+                subtitle="Suba a petição adversária. Teses, aceitação e contra-argumentos."
                 onClick={() => navigate('/pesquisa/raio-x')}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 rounded-xl bg-accent-blue/10 group-hover:bg-primary-foreground/20 transition-colors">
-                      <Users className="w-6 h-6 text-accent-blue group-hover:text-primary-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-foreground">
-                        Raio-X do Inimigo
-                      </h3>
-                      <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80">
-                        Envie a petição da parte contrária. O iJus identifica teses e sugere contra-argumentos.
-                      </p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary-foreground/80 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </CardContent>
-              </Card>
+              />
             </div>
           </div>
 

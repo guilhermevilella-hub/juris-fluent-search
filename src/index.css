@@ -79,6 +79,15 @@
     --radius-xl: 1rem;
     --radius-2xl: 1.5rem;
 
+    /* Deep Blue Gradients for Action Buttons */
+    --blue-deep: #0B1736;
+    --blue-mid: #0E1C4E;
+    --blue-ink: #13307D;
+    --blue-elec: #206CFF;
+    --cyan-glow: #00E0FF;
+    --text-primary: #FFFFFF;
+    --text-secondary: rgba(255,255,255,0.75);
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
