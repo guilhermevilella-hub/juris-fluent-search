@@ -1,42 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* iJus Design System - Sophisticated Legal Tech Interface */
 
 @layer base {
   :root {
+    /* Core Brand Colors */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    --foreground: 214 58% 9%;
+    
+    /* iJus Brand Palette */
+    --primary: 214 58% 9%; /* #0B1736 - Main brand dark blue */
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 214 55% 15%; /* #132866 - Hover state */
+    --primary-light: 214 30% 25%;
+    
+    /* Accent Colors */
+    --accent-blue: 223 100% 55%; /* #1552FF - Vibrant blue for CTAs */
+    --accent-blue-foreground: 0 0% 100%;
+    --accent-blue-hover: 223 85% 50%;
+    
+    /* Surface Colors */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 214 58% 9%;
+    --card-border: 214 20% 94%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    --popover-foreground: 214 58% 9%;
+    
+    /* Neutral Palette */
+    --secondary: 214 15% 97%;
+    --secondary-foreground: 214 25% 35%;
+    
+    --muted: 214 15% 97%;
+    --muted-foreground: 214 15% 45%;
+    
+    --accent: 214 20% 94%;
+    --accent-foreground: 214 58% 9%;
+    
+    /* Status Colors */
+    --success: 142 69% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 100% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border & Input */
+    --border: 214 20% 90%;
+    --input: 214 20% 94%;
+    --input-border: 214 25% 85%;
+    --ring: 223 100% 55%;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(15 31 77 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(15 31 77 / 0.1), 0 2px 4px -1px rgb(15 31 77 / 0.06);
+    --shadow-lg: 0 10px 15px -3px rgb(15 31 77 / 0.1), 0 4px 6px -2px rgb(15 31 77 / 0.05);
+    --shadow-xl: 0 20px 25px -5px rgb(15 31 77 / 0.1), 0 10px 10px -5px rgb(15 31 77 / 0.04);
+    
+    /* Gradients */
+    --gradient-brand: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent-blue)), hsl(var(--primary)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
+    
+    /* Animations */
+    --transition-fast: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Border Radius */
     --radius: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -94,12 +135,80 @@ All colors MUST be HSL.
   }
 }
 
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+}
+
+@layer components {
+  /* Brand Button Variants */
+  .btn-hero {
+    @apply bg-gradient-to-r from-accent-blue to-accent-blue-hover text-accent-blue-foreground hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 rounded-xl font-medium;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary-hover transition-colors duration-200 rounded-xl font-medium;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-accent border border-border transition-colors duration-200 rounded-xl font-medium;
+  }
+  
+  .btn-outline {
+    @apply border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors duration-200 rounded-xl font-medium;
+  }
+  
+  /* Card Components */
+  .card-jurisprudence {
+    @apply bg-card border border-card-border rounded-xl p-6 hover:shadow-md transition-shadow duration-200;
+  }
+  
+  /* Search Components */
+  .search-input {
+    @apply w-full px-4 py-3 bg-background border border-input-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200;
+  }
+  
+  /* Filter Components */
+  .filter-tag {
+    @apply inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-accent text-accent-foreground border border-border;
+  }
+  
+  /* Status Indicators */
+  .status-active {
+    @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-success/10 text-success;
+  }
+  
+  .status-inactive {
+    @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground;
+  }
+  
+  /* Legal Micro-text */
+  .legal-text {
+    @apply text-xs text-muted-foreground font-normal;
+  }
+  
+  /* Animations */
+  .animate-fade-in {
+    @apply animate-in fade-in duration-300;
+  }
+  
+  .animate-slide-up {
+    @apply animate-in slide-in-from-bottom-4 duration-300;
+  }
+  
+  .animate-scale-in {
+    @apply animate-in zoom-in-95 duration-200;
   }
 }
