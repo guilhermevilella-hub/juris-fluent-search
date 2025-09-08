@@ -81,10 +81,10 @@ const Home = () => {
           </h1>
           
           {/* Bullet Points */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
             <div className="flex flex-col items-center text-center space-y-4 animate-fade-in">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#0B1736] via-[#13307D] to-[#1A3AFF] rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-xl text-[#BFD3FF]">⚡</span>
+              <div className="w-12 h-12 bg-[#F2F4F7] rounded-full flex items-center justify-center shadow-sm">
+                <span className="text-xl text-[#13307D]">⚡</span>
               </div>
               <span className="text-muted-foreground text-sm md:text-base px-3">
                 Mais rápido e eficiente que buscas por palavras-chaves
@@ -92,8 +92,8 @@ const Home = () => {
             </div>
             
             <div className="flex flex-col items-center text-center space-y-4 animate-fade-in" style={{animationDelay: '100ms'}}>
-              <div className="w-12 h-12 bg-gradient-to-br from-[#0B1736] via-[#13307D] to-[#1A3AFF] rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-xl text-[#BFD3FF]">📚</span>
+              <div className="w-12 h-12 bg-[#F2F4F7] rounded-full flex items-center justify-center shadow-sm">
+                <span className="text-xl text-[#13307D]">📚</span>
               </div>
               <span className="text-muted-foreground text-sm md:text-base px-3">
                 Resultados confiáveis, direto de tribunais oficiais
@@ -101,8 +101,8 @@ const Home = () => {
             </div>
             
             <div className="flex flex-col items-center text-center space-y-4 animate-fade-in" style={{animationDelay: '200ms'}}>
-              <div className="w-12 h-12 bg-gradient-to-br from-[#0B1736] via-[#13307D] to-[#1A3AFF] rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-xl text-[#BFD3FF]">🤖</span>
+              <div className="w-12 h-12 bg-[#F2F4F7] rounded-full flex items-center justify-center shadow-sm">
+                <span className="text-xl text-[#13307D]">🤖</span>
               </div>
               <span className="text-muted-foreground text-sm md:text-base px-3">
                 Busca por contexto com Inteligência Artificial
