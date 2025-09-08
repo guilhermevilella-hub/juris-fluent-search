@@ -14,6 +14,10 @@ import HowItWorks from "./pages/HowItWorks";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
+import PesquisaContexto from "./pages/PesquisaContexto";
+import PesquisaPeticao from "./pages/PesquisaPeticao";
+import PesquisaSentenca from "./pages/PesquisaSentenca";
+import PesquisaRaioX from "./pages/PesquisaRaioX";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +37,10 @@ const App = () => (
               <Route path="/planos" element={<Pricing />} />
               <Route path="/conta" element={<Dashboard />} />
               <Route path="/como-funciona" element={<HowItWorks />} />
+              <Route path="/pesquisa/contexto" element={<PesquisaContexto />} />
+              <Route path="/pesquisa/peticao" element={<PesquisaPeticao />} />
+              <Route path="/pesquisa/sentenca" element={<PesquisaSentenca />} />
+              <Route path="/pesquisa/raio-x" element={<PesquisaRaioX />} />
               <Route path="/legal/termos" element={<Terms />} />
               <Route path="/legal/privacidade" element={<Privacy />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

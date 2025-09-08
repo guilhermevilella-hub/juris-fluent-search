@@ -121,6 +121,112 @@ const Home = () => {
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
 
+          {/* Search Modes Section */}
+          <div className="max-w-5xl mx-auto mb-16">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2">
+                Modos de busca inteligente
+              </h2>
+              <p className="text-muted-foreground">
+                Escolha a forma mais eficiente para sua pesquisa
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Pesquisa por Contexto */}
+              <Card 
+                className="group cursor-pointer border-2 border-primary/20 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+                onClick={() => navigate('/pesquisa/contexto')}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-3 rounded-xl bg-accent-blue/10 group-hover:bg-primary-foreground/20 transition-colors">
+                      <Search className="w-6 h-6 text-accent-blue group-hover:text-primary-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-foreground">
+                        Pesquisa por Contexto
+                      </h3>
+                      <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80">
+                        Descreva em texto o seu caso. O sistema encontra jurisprudências semelhantes.
+                      </p>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary-foreground/80 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Pesquisa por Petição */}
+              <Card 
+                className="group cursor-pointer border-2 border-primary/20 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+                onClick={() => navigate('/pesquisa/peticao')}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-3 rounded-xl bg-accent-blue/10 group-hover:bg-primary-foreground/20 transition-colors">
+                      <Building className="w-6 h-6 text-accent-blue group-hover:text-primary-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-foreground">
+                        Pesquisa por Petição
+                      </h3>
+                      <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80">
+                        Faça upload da petição e o iJus encontra jurisprudências compatíveis.
+                      </p>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary-foreground/80 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Pesquisa por Sentença */}
+              <Card 
+                className="group cursor-pointer border-2 border-primary/20 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+                onClick={() => navigate('/pesquisa/sentenca')}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-3 rounded-xl bg-accent-blue/10 group-hover:bg-primary-foreground/20 transition-colors">
+                      <Shield className="w-6 h-6 text-accent-blue group-hover:text-primary-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-foreground">
+                        Pesquisa por Sentença
+                      </h3>
+                      <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80">
+                        Carregue a sentença e veja jurisprudências que contradizem a tese adotada.
+                      </p>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary-foreground/80 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Raio-X do Inimigo */}
+              <Card 
+                className="group cursor-pointer border-2 border-primary/20 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
+                onClick={() => navigate('/pesquisa/raio-x')}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-3 rounded-xl bg-accent-blue/10 group-hover:bg-primary-foreground/20 transition-colors">
+                      <Users className="w-6 h-6 text-accent-blue group-hover:text-primary-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-foreground">
+                        Raio-X do Inimigo
+                      </h3>
+                      <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/80">
+                        Envie a petição da parte contrária. O iJus identifica teses e sugere contra-argumentos.
+                      </p>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary-foreground/80 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {STATS.map((stat, index) => (
