@@ -85,12 +85,8 @@ const Home = () => {
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed animate-slide-up">
-            Encontre decisões em segundos, aumente sua produtividade e tenha acesso a jurisprudências 100% reais e verificadas de fontes oficiais.
-          </p>
-
           {/* Bullet Points */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
             <div className="flex items-center justify-center md:justify-start space-x-3 animate-fade-in">
               <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-accent-blue/20 to-accent-blue/10 rounded-full flex items-center justify-center">
                 <span className="text-lg">⚡</span>
@@ -118,43 +114,6 @@ const Home = () => {
               </span>
             </div>
           </div>
-
-          {/* Hero Search */}
-          <div className="max-w-2xl mx-auto mb-8 animate-scale-in">
-            <form onSubmit={handleSearch} className="relative">
-              <div className={`relative transition-all duration-300 ${
-                isSearchFocused ? 'transform scale-105' : ''
-              }`}>
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Busque por tema, tribunal, número do processo, palavras-chave..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  onBlur={() => setIsSearchFocused(false)}
-                  className="pl-12 pr-32 h-14 text-lg bg-background/80 backdrop-blur-sm border-2 border-input-border focus:border-accent-blue rounded-2xl shadow-lg"
-                />
-                <Button 
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-ijus h-10 group"
-                >
-                  Buscar
-                  <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </div>
-            </form>
-          </div>
-
-          {/* CTA Secondary */}
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/como-funciona')}
-            className="text-muted-foreground hover:text-primary mb-16"
-          >
-            Como funciona
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
 
           {/* Search Modes Section */}
           <div className="max-w-5xl mx-auto mb-16">
