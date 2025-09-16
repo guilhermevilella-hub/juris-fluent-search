@@ -8,76 +8,80 @@
 
 @layer base {
   :root {
-    /* Core Brand Colors */
+    /* Clean Modern Palette */
     --background: 0 0% 100%;
-    --foreground: 214 58% 9%;
-    
-    /* iJus Brand Palette */
-    --primary: 214 58% 9%; /* #0B1736 - Main brand dark blue */
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 214 55% 15%; /* #132866 - Hover state */
-    --primary-light: 214 30% 25%;
-    
-    /* Accent Colors */
-    --accent-blue: 223 100% 55%; /* #1552FF - Vibrant blue for CTAs */
-    --accent-blue-foreground: 0 0% 100%;
-    --accent-blue-hover: 223 85% 50%;
-    
-    /* Surface Colors */
+    --foreground: 0 0% 10%;
+
+    /* Primary - Dark Blue Elegant */
+    --primary: 211 79% 30%;
+    --primary-foreground: 210 40% 98%;
+    --primary-hover: 211 79% 35%;
+    --primary-light: 211 79% 85%;
+
+    /* Secondary - Medium Blue */
+    --secondary: 232 100% 56%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Accents - Light Blue Soft */
+    --accent: 211 79% 96%;
+    --accent-foreground: 211 79% 30%;
+    --accent-blue: 211 79% 30%;
+    --accent-blue-foreground: 210 40% 98%;
+    --accent-blue-hover: 211 79% 35%;
+
+    /* Neutral Clean */
+    --muted: 214 31% 95%;
+    --muted-foreground: 0 0% 33%;
+
+    /* Card Clean */
     --card: 0 0% 100%;
-    --card-foreground: 214 58% 9%;
-    --card-border: 214 20% 94%;
-    
+    --card-foreground: 0 0% 10%;
+    --card-border: 214 31% 91%;
+    --card-shadow: 0 0% 0% / 0.05;
+
+    /* Borders Clean */
+    --border: 214 31% 91%;
+    --input: 214 31% 91%;
+    --input-border: 214 31% 86%;
+    --ring: 211 79% 30%;
+
+    /* Status Colors Modern */
+    --success: 142 71% 45%;
+    --success-foreground: 356 29% 98%;
+    --warning: 48 96% 53%;
+    --warning-foreground: 48 96% 13%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 86% 97%;
+
+    /* Status Tags */
+    --status-new: 0 72% 51%;
+    --status-read: 213 24% 63%;
+
+    /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 214 58% 9%;
-    
-    /* Neutral Palette */
-    --secondary: 214 15% 97%;
-    --secondary-foreground: 214 25% 35%;
-    
-    --muted: 214 15% 97%;
-    --muted-foreground: 214 15% 45%;
-    
-    --accent: 214 20% 94%;
-    --accent-foreground: 214 58% 9%;
-    
-    /* Status Colors */
-    --success: 142 69% 45%;
-    --success-foreground: 0 0% 100%;
-    
-    --warning: 38 100% 50%;
-    --warning-foreground: 0 0% 100%;
-    
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    
-    /* Border & Input */
-    --border: 214 20% 90%;
-    --input: 214 20% 94%;
-    --input-border: 214 25% 85%;
-    --ring: 223 100% 55%;
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(15 31 77 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(15 31 77 / 0.1), 0 2px 4px -1px rgb(15 31 77 / 0.06);
-    --shadow-lg: 0 10px 15px -3px rgb(15 31 77 / 0.1), 0 4px 6px -2px rgb(15 31 77 / 0.05);
-    --shadow-xl: 0 20px 25px -5px rgb(15 31 77 / 0.1), 0 10px 10px -5px rgb(15 31 77 / 0.04);
-    
-    /* Gradients */
-    --gradient-brand: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--accent-blue)), hsl(var(--primary)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
-    
-    /* Animations */
-    --transition-fast: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-smooth: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Border Radius */
-    --radius: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
-    --radius-2xl: 1.5rem;
+    --popover-foreground: 0 0% 10%;
+
+    /* Sidebar Modern */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 211 79% 30%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 211 79% 96%;
+    --sidebar-accent-foreground: 211 79% 30%;
+    --sidebar-border: 214 31% 91%;
+    --sidebar-ring: 211 79% 30%;
+
+    /* Clean Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+    --shadow-md: 0 2px 8px 0 rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 4px 16px 0 rgb(0 0 0 / 0.08);
+    --shadow-xl: 0 8px 32px 0 rgb(0 0 0 / 0.12);
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04);
+
+    /* Modern Gradients */
+    --gradient-brand: linear-gradient(135deg, #0B1736 0%, #13307D 52%, #1A3AFF 100%);
+    --gradient-accent: linear-gradient(135deg, #E6ECF5 0%, #F8FAFC 100%);
+    --gradient-subtle: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(230,236,245,0.2) 100%);
 
     /* iJus Blue Design Tokens */
     --ijus-blue-deep: #0B1736;
