@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, TrendingUp, Building, Clock, ArrowRight, Sparkles, Users, Shield, FileText, Gavel, ScanSearch } from "lucide-react";
+import { Search, TrendingUp, Building, Clock, ArrowRight, Sparkles, Users, Shield, FileText, Gavel, ScanSearch, Zap, BarChart3, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -76,30 +76,30 @@ const Home = () => {
           </h1>
           
           {/* Bullet Points */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
-            <div className="flex flex-col items-center text-center space-y-4 animate-fade-in">
-              <div className="w-12 h-12 bg-[#F2F4F7] rounded-full flex items-center justify-center shadow-sm">
-                <span className="text-xl text-[#13307D]">⚡</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-12">
+            <div className="flex flex-col items-center text-center space-y-3 animate-fade-in">
+              <div className="w-8 h-8 bg-[#F2F4F7] rounded-full flex items-center justify-center shadow-sm">
+                <Zap className="w-4 h-4 text-[#13307D]" />
               </div>
-              <span className="text-muted-foreground text-sm md:text-base px-3">
+              <span className="text-muted-foreground text-xs md:text-sm px-2 leading-tight">
                 Mais rápido e eficiente que buscas por palavras-chaves
               </span>
             </div>
             
-            <div className="flex flex-col items-center text-center space-y-4 animate-fade-in" style={{animationDelay: '100ms'}}>
-              <div className="w-12 h-12 bg-[#F2F4F7] rounded-full flex items-center justify-center shadow-sm">
-                <span className="text-xl text-[#13307D]">📚</span>
+            <div className="flex flex-col items-center text-center space-y-3 animate-fade-in" style={{animationDelay: '100ms'}}>
+              <div className="w-8 h-8 bg-[#F2F4F7] rounded-full flex items-center justify-center shadow-sm">
+                <BarChart3 className="w-4 h-4 text-[#13307D]" />
               </div>
-              <span className="text-muted-foreground text-sm md:text-base px-3">
+              <span className="text-muted-foreground text-xs md:text-sm px-2 leading-tight">
                 Resultados confiáveis, direto de tribunais oficiais
               </span>
             </div>
             
-            <div className="flex flex-col items-center text-center space-y-4 animate-fade-in" style={{animationDelay: '200ms'}}>
-              <div className="w-12 h-12 bg-[#F2F4F7] rounded-full flex items-center justify-center shadow-sm">
-                <span className="text-xl text-[#13307D]">🤖</span>
+            <div className="flex flex-col items-center text-center space-y-3 animate-fade-in" style={{animationDelay: '200ms'}}>
+              <div className="w-8 h-8 bg-[#F2F4F7] rounded-full flex items-center justify-center shadow-sm">
+                <Bot className="w-4 h-4 text-[#13307D]" />
               </div>
-              <span className="text-muted-foreground text-sm md:text-base px-3">
+              <span className="text-muted-foreground text-xs md:text-sm px-2 leading-tight">
                 Busca por contexto com Inteligência Artificial
               </span>
             </div>
