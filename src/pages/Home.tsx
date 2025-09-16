@@ -69,7 +69,7 @@ const Home = () => {
         <div className="container mx-auto max-w-6xl text-center">
 
           {/* Main Heading */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-12 leading-[2.0] animate-slide-up">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-12 leading-[40px] animate-slide-up">
             <span className="bg-gradient-to-r from-[#0B1736] via-[#13307D] to-[#1A3AFF] bg-clip-text text-transparent">
               Pesquisa de jurisprudência com Inteligência Artificial
             </span>
