@@ -97,19 +97,9 @@ const DocumentDetail = () => {
     const fetchDocument = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`api/v1/jurisprudencias/documento/acordao/${id}`, { // Assumindo 'acordao' como tipo
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('your_access_token')}`,
-            'X-Requested-With': 'XMLHttpRequest',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Falha ao buscar o documento.');
-        }
-
-        const data = await response.json();
-        setDocument(data); // `data` já deve estar no formato correto
+        const { getDocument } = await import('@/services/searchService');
+        const data = await getDocument('acordao', id); // Assumindo 'acordao' como tipo
+        setDocument(data);
       } catch (error) {
         console.error('Erro ao carregar o documento:', error);
         // Fallback para dados mock em caso de erro
