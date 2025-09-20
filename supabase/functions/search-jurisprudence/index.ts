@@ -38,43 +38,59 @@ serve(async (req) => {
     }
 
     // Combine query with synonyms for expanded search
-    const expandedQuery = [query, ...synonyms].join(' ');
+    let searchQuery = query;
+    if (synonyms.length > 0) {
+      // Use logical operators to expand search with synonyms
+      searchQuery = `${query} OR ${synonyms.join(' OR ')}`;
+    }
     
-    // Build search parameters for the new endpoint
-    const page = filters.page || 1;
-    const limitentries = filters.limitentries || 100;
+    // Build URL parameters
     const params = new URLSearchParams({
-      ordenacao: '',
-      pagNumero: page.toString(),
-      pagQuantidade: limitentries.toString(),
+      q: searchQuery,
+      page: (filters.page || 1).toString(),
     });
 
-    // Prepare request body with the new structure
-    const requestBody = {
-      ementa: expandedQuery,
-      tribunal: filters.tribunal || [],
-      tipoDecisao: filters.tipoDecisao || [],
-      areaDeConhecimento: filters.areaDeConhecimento || [],
-      provimento: filters.provimento || [],
-      orgaoJulgador: filters.orgaoJulgador || [],
-      relator: filters.relator || [],
-      dataInicial: filters.dataInicial || "",
-      dataFinal: filters.dataFinal || "",
-      naoUuid: [],
-      tipoTribunal: [""]
-    };
+    // Add optional filters as URL parameters
+    if (filters.tribunal) {
+      params.append('tribunal', filters.tribunal);
+    }
+    
+    if (filters.tipo_documento) {
+      params.append('tipo_documento', filters.tipo_documento);
+    }
+    
+    if (filters.relator) {
+      params.append('relator', filters.relator);
+    }
+    
+    if (filters.de_data) {
+      params.append('de_data', filters.de_data);
+    }
+    
+    if (filters.ate_data) {
+      params.append('ate_data', filters.ate_data);
+    }
+    
+    if (filters.ordena_por) {
+      params.append('ordena_por', filters.ordena_por);
+    }
 
-    console.log('Searching with expanded query:', expandedQuery);
-    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+    // Enable logical operators if using synonyms
+    if (synonyms.length > 0) {
+      params.append('utilizar_operadores_logicos', '1');
+    }
 
-    // Call Escavador API with new endpoint structure
-    const response = await fetch(`https://api.escavador.com/buscabackend/v1/documentos?${params.toString()}`, {
-      method: 'POST',
+    console.log('Searching with query:', searchQuery);
+    console.log('URL params:', params.toString());
+
+    // Call Escavador API with correct endpoint and method
+    const apiUrl = `https://api.escavador.com/api/v1/jurisprudencias/busca?${params.toString()}`;
+    const response = await fetch(apiUrl, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${escavadorApiKey}`,
-        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
-      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -95,24 +111,40 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('Escavador API response received, items count:', data.items?.length || 0);
+    console.log('Escavador API response received');
+    console.log('Response structure:', Object.keys(data));
 
     // Map response to expected format
-    const mappedResults = data.items?.map((item: any) => ({
-      id: item.id,
-      titulo: item.titulo,
-      ementa: item.ementa,
-      tribunal: item.tribunal,
-      orgao_julgador: item.orgao_julgador,
-      relator: item.relator,
-      data_julgamento: item.data_julgamento,
-      numero_processo: item.numero_processo,
+    // The API response structure may vary, so we'll handle different possible formats
+    let results = [];
+    let total = 0;
+
+    if (data.results) {
+      results = data.results;
+      total = data.total || data.results.length;
+    } else if (data.items) {
+      results = data.items;
+      total = data.total || data.items.length;
+    } else if (Array.isArray(data)) {
+      results = data;
+      total = data.length;
+    }
+
+    const mappedResults = results.map((item: any) => ({
+      id: item.id || item.uuid,
+      titulo: item.titulo || item.title,
+      ementa: item.ementa || item.summary,
+      tribunal: item.tribunal || item.court,
+      orgao_julgador: item.orgao_julgador || item.chamber,
+      relator: item.relator || item.rapporteur,
+      data_julgamento: item.data_julgamento || item.judgment_date,
+      numero_processo: item.numero_processo || item.process_number,
       tags: item.tags || [],
-      score: item.score || 0,
-    })) || [];
+      score: item.score || item.relevance || 0,
+    }));
 
     return new Response(
-      JSON.stringify({ items: mappedResults, total: data.total || mappedResults.length }),
+      JSON.stringify({ items: mappedResults, total }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
