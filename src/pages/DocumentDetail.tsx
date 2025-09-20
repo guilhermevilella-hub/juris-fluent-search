@@ -25,6 +25,8 @@ import PaywallModal from "@/components/PaywallModal";
 // Mock document data
 const MOCK_DOCUMENT = {
   id: "1",
+  tipo: "acordao",
+  arquivo: "documento.pdf",
   titulo: "Responsabilidade civil por danos morais em relações de consumo",
   ementa: `O fornecedor de produtos ou serviços responde objetivamente pelos danos causados aos consumidores, independentemente de culpa, conforme art. 14 do CDC. A configuração do dano moral prescinde da demonstração de prejuízo econômico, bastando a comprovação da violação do direito da personalidade do consumidor.
 
@@ -92,12 +94,34 @@ const DocumentDetail = () => {
   const [selectedText, setSelectedText] = useState("");
 
   useEffect(() => {
-    // Simulate API call to fetch document
-    setIsLoading(true);
-    setTimeout(() => {
-      setDocument(MOCK_DOCUMENT);
-      setIsLoading(false);
-    }, 500);
+    const fetchDocument = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`api/v1/jurisprudencias/documento/acordao/${id}`, { // Assumindo 'acordao' como tipo
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('your_access_token')}`,
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao buscar o documento.');
+        }
+
+        const data = await response.json();
+        setDocument(data); // `data` já deve estar no formato correto
+      } catch (error) {
+        console.error('Erro ao carregar o documento:', error);
+        // Fallback para dados mock em caso de erro
+        setDocument(MOCK_DOCUMENT);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchDocument();
+    }
   }, [id]);
 
   const handleCopy = (content: string, type: string) => {
@@ -186,12 +210,21 @@ const DocumentDetail = () => {
                   <span className="hidden sm:inline">Copiar ementa</span>
                 </Button>
                 <Button
-                  size="sm"
+                  size="sm" 
                   onClick={() => handleCopy(document.inteiro_teor, "inteiro_teor")}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  <span className="hidden sm:inline">Copiar inteiro teor</span>
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => window.open(`api/v1/jurisprudencias/pdf/${document.tipo || 'acordao'}/${document.id}/${document.arquivo || 'documento.pdf'}`, '_blank')}
                   className="btn-hero flex items-center space-x-2"
                 >
                   <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">Copiar inteiro teor</span>
+                  <span className="hidden sm:inline">Download PDF</span>
                 </Button>
               </div>
             </div>
