@@ -22,60 +22,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import PaywallModal from "@/components/PaywallModal";
 
-// Mock document data
-const MOCK_DOCUMENT = {
-  id: "1",
-  tipo: "acordao",
-  arquivo: "documento.pdf",
-  titulo: "Responsabilidade civil por danos morais em relações de consumo",
-  ementa: `O fornecedor de produtos ou serviços responde objetivamente pelos danos causados aos consumidores, independentemente de culpa, conforme art. 14 do CDC. A configuração do dano moral prescinde da demonstração de prejuízo econômico, bastando a comprovação da violação do direito da personalidade do consumidor.
-
-  No caso dos autos, restou comprovada a falha na prestação do serviço bancário, que resultou em constrangimento e abalo à honra do autor, configurando dano moral indenizável.
-
-  A indenização por danos morais deve ser fixada com moderação, considerando-se as circunstâncias do caso concreto, a condição econômica das partes e os princípios da proporcionalidade e razoabilidade.`,
-  
-  inteiro_teor: `ACÓRDÃO
-
-  EMENTA: RESPONSABILIDADE CIVIL. DANOS MORAIS. RELAÇÃO DE CONSUMO. FALHA NA PRESTAÇÃO DE SERVIÇO BANCÁRIO. CONFIGURAÇÃO. INDENIZAÇÃO DEVIDA.
-
-  1. O fornecedor de produtos ou serviços responde objetivamente pelos danos causados aos consumidores, independentemente de culpa, conforme dispõe o art. 14 do Código de Defesa do Consumidor.
-
-  2. A configuração do dano moral em relações consumeristas prescinde da demonstração de prejuízo econômico, sendo suficiente a comprovação da violação do direito da personalidade do consumidor.
-
-  3. No presente caso, restou evidenciada a falha na prestação do serviço bancário, que ocasionou constrangimento injustificado ao autor, caracterizando dano moral passível de indenização.
-
-  4. A fixação da indenização por danos morais deve observar os critérios da proporcionalidade e razoabilidade, considerando as circunstâncias específicas do caso, a gravidade da ofensa e a condição econômica das partes envolvidas.
-
-  5. Recurso conhecido e provido em parte para reduzir o valor da indenização por danos morais.
-
-  RELATÓRIO
-
-  Trata-se de recurso especial interposto por BANCO XYZ S/A contra acórdão proferido pelo Tribunal de Justiça de São Paulo...
-
-  [Conteúdo completo do acórdão continuaria aqui com toda a fundamentação, votos dos ministros, etc.]
-
-  VOTO
-
-  O EXMO. SR. MINISTRO MARCO AURÉLIO BELLIZZE (Relator):
-
-  Cuida-se de recurso especial em que se discute a responsabilidade civil por danos morais em relação de consumo...
-
-  [Voto completo do relator]
-
-  DECISÃO
-
-  Por unanimidade, conhecer do recurso especial e dar-lhe provimento em parte...`,
-  
-  tribunal: "STJ - Superior Tribunal de Justiça",
-  orgao_julgador: "3ª Turma",
-  relator: "Min. Marco Aurélio Bellizze",
-  data_julgamento: "2024-01-15",
-  numero_processo: "REsp 1.234.567/SP",
-  classe_assunto: "Recurso Especial - Responsabilidade Civil",
-  palavras_chave: ["responsabilidade civil", "danos morais", "direito do consumidor", "CDC", "falha na prestação de serviço"],
-  fonte_url: "https://stj.jusbrasil.com.br/exemplo",
-  tags: ["Direito do Consumidor", "Responsabilidade Civil", "Danos Morais", "Bancário"]
-};
 
 const RELATED_CASES = [
   { id: "2", titulo: "Danos morais por negativação indevida", relevancia: 95 },
@@ -88,7 +34,7 @@ const DocumentDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [document, setDocument] = useState(MOCK_DOCUMENT);
+  const [document, setDocument] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [selectedText, setSelectedText] = useState("");
@@ -102,8 +48,11 @@ const DocumentDetail = () => {
         setDocument(data);
       } catch (error) {
         console.error('Erro ao carregar o documento:', error);
-        // Fallback para dados mock em caso de erro
-        setDocument(MOCK_DOCUMENT);
+        toast({
+          title: "Erro ao carregar documento",
+          description: "Não foi possível carregar o documento solicitado.",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -153,7 +102,7 @@ const DocumentDetail = () => {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || !document) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
