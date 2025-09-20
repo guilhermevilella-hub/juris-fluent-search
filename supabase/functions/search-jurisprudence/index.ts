@@ -40,23 +40,41 @@ serve(async (req) => {
     // Combine query with synonyms for expanded search
     const expandedQuery = [query, ...synonyms].join(' ');
     
-    // Build search parameters
+    // Build search parameters for the new endpoint
+    const page = filters.page || 1;
+    const limitentries = filters.limitentries || 100;
     const params = new URLSearchParams({
-      q: expandedQuery,
-      ...filters,
+      ordenacao: '',
+      pagNumero: page.toString(),
+      pagQuantidade: limitentries.toString(),
     });
 
-    console.log('Searching with query:', expandedQuery);
-    console.log('Search parameters:', params.toString());
+    // Prepare request body with the new structure
+    const requestBody = {
+      ementa: expandedQuery,
+      tribunal: filters.tribunal || [],
+      tipoDecisao: filters.tipoDecisao || [],
+      areaDeConhecimento: filters.areaDeConhecimento || [],
+      provimento: filters.provimento || [],
+      orgaoJulgador: filters.orgaoJulgador || [],
+      relator: filters.relator || [],
+      dataInicial: filters.dataInicial || "",
+      dataFinal: filters.dataFinal || "",
+      naoUuid: [],
+      tipoTribunal: [""]
+    };
 
-    // Call Escavador API
-    const response = await fetch(`https://api.escavador.com/api/v1/jurisprudencias/busca?${params.toString()}`, {
-      method: 'GET',
+    console.log('Searching with expanded query:', expandedQuery);
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+    // Call Escavador API with new endpoint structure
+    const response = await fetch(`https://api.escavador.com/buscabackend/v1/documentos?${params.toString()}`, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${escavadorApiKey}`,
-        'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
