@@ -8,17 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import JurisprudenceCard from "@/components/JurisprudenceCard";
 import SearchFiltersComponent, { SearchFilters } from "@/components/SearchFilters";
-
-// No início do arquivo, adicione uma função para gerar sinônimos
-// Substitua este mock pela sua lógica de IA real
-async function generateSynonyms(query: string): Promise<string[]> {
-  // Lógica da sua IA para gerar sinônimos
-  // Por exemplo, uma chamada fetch para um serviço de IA
-  // const response = await fetch('sua-api-de-ia.com/synonyms?q=' + query);
-  // const data = await response.json();
-  // return data.synonyms;
-  return []; // Retorno mockado
-}
+import { searchEscavador } from "@/services/searchService";
 
 // Mock search results (mantido como fallback)
 const MOCK_RESULTS = [
@@ -88,48 +78,10 @@ const SearchResults = () => {
     setIsLoading(true);
     const startTime = Date.now();
 
-    // Gerar sinônimos com a IA
-    const synonyms = await generateSynonyms(query);
-    const expandedQuery = [query, ...synonyms].join(' ');
-
-    // Construir os parâmetros da URL da API de Busca
-    const params = new URLSearchParams({
-      q: expandedQuery,
-      ...searchFilters,
-      // Certifique-se de que os nomes dos campos de filtro correspondam aos da API
-    });
-
     try {
-      const response = await fetch(`api/v1/jurisprudencias/busca?${params.toString()}`, {
-        method: 'GET',
-        headers: {
-          // Use o token de autenticação, que pode vir do seu sistema Supabase
-          'Authorization': `Bearer ${localStorage.getItem('your_access_token')}`, 
-          'X-Requested-With': 'XMLHttpRequest', // Conforme documentação
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha na requisição da API de busca.');
-      }
-
-      const data = await response.json();
-
-      // Mapeie a resposta da API para o formato esperado pelo JurisprudenceCard
-      const mappedResults = data.items.map((item: any) => ({
-        id: item.id,
-        titulo: item.titulo,
-        ementa: item.ementa,
-        tribunal: item.tribunal,
-        orgao_julgador: item.orgao_julgador,
-        relator: item.relator,
-        data_julgamento: item.data_julgamento,
-        numero_processo: item.numero_processo,
-        tags: item.tags || [],
-        score: item.score || 0
-      }));
-
-      setResults(mappedResults);
+      // Chame a nova função que já inclui a geração de sinônimos e a chamada à API do Escavador
+      const data = await searchEscavador(query, searchFilters);
+      setResults(data);
     } catch (error) {
       console.error('Erro na busca:', error);
       // Fallback para dados mock em caso de erro
