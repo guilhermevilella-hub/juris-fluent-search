@@ -146,8 +146,8 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
     
     const { escavadorKey } = await getApiCredentials();
 
-    // List of document types to try
-    const documentTypes = [tipo, 'acordao', 'decisao', 'sentenca'];
+    // List of document types to try - use 'decisoes' as default fallback
+    const documentTypes = [tipo, 'decisoes', 'acordao', 'decisao', 'sentenca'];
     
     for (const docType of documentTypes) {
       try {
