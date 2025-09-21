@@ -120,12 +120,3 @@ secret = ""
 [edge_runtime]
 enabled = true
 port = 54327
-
-[functions.search-jurisprudence]
-verify_jwt = false
-
-[functions.get-document]
-verify_jwt = false
-
-[functions.generate-synonyms]
-verify_jwt = false

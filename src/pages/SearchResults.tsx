@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Search, Filter, SlidersHorizontal, Clock } from "lucide-react";
+import { Search, Filter, SlidersHorizontal, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ButtonIjus } from "@/components/ui/button-ijus";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import JurisprudenceCard from "@/components/JurisprudenceCard";
 import SearchFiltersComponent, { SearchFilters } from "@/components/SearchFilters";
-import { searchEscavador } from "@/services/searchService";
+import { searchEscavador, hasApiKeys } from "@/services/searchService";
+import { useToast } from '@/components/ui/use-toast';
+import ApiKeySettings from '@/components/ApiKeySettings';
 
 // Mock search results (mantido como fallback)
 const MOCK_RESULTS = [
