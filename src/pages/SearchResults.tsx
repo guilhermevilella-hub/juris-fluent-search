@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import JurisprudenceCard from "@/components/JurisprudenceCard";
 import SearchFiltersComponent, { SearchFilters } from "@/components/SearchFilters";
-import { searchEscavador } from "@/services/searchService";
+import { searchEscavador, DynamicFilter } from "@/services/searchService";
 import { useToast } from '@/components/ui/use-toast';
 
 // Mock search results (mantido como fallback)
@@ -62,6 +62,7 @@ const SearchResults = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(MOCK_RESULTS);
   const [searchTime, setSearchTime] = useState(0.34);
+  const [dynamicFilters, setDynamicFilters] = useState<DynamicFilter[]>([]);
   
   const totalResults = results.length;
 
@@ -84,9 +85,10 @@ const SearchResults = () => {
       const data = await searchEscavador(query, searchFilters);
       
       // Salvar resultados no sessionStorage para uso posterior
-      sessionStorage.setItem('searchResults', JSON.stringify(data));
+      sessionStorage.setItem('searchResults', JSON.stringify(data.results));
       
-      setResults(data);
+      setResults(data.results);
+      setDynamicFilters(data.filters);
     } catch (error) {
       console.error('Erro na busca:', error);
       
@@ -177,6 +179,7 @@ const SearchResults = () => {
                 onFiltersChange={handleFiltersChange}
                 isOpen={filtersOpen}
                 onToggle={() => setFiltersOpen(!filtersOpen)}
+                dynamicFilters={dynamicFilters}
               />
             </div>
           </div>

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { DynamicFilter } from "@/services/searchService";
 
 export interface SearchFilters {
   tribunal?: string;
@@ -25,6 +26,7 @@ interface SearchFiltersProps {
   onFiltersChange: (filters: SearchFilters) => void;
   isOpen: boolean;
   onToggle: () => void;
+  dynamicFilters?: DynamicFilter[];
 }
 
 const TRIBUNALS = [
@@ -58,7 +60,7 @@ const THEMES = [
   "Direito do Consumidor"
 ];
 
-const SearchFiltersComponent = ({ filters, onFiltersChange, isOpen, onToggle }: SearchFiltersProps) => {
+const SearchFiltersComponent = ({ filters, onFiltersChange, isOpen, onToggle, dynamicFilters = [] }: SearchFiltersProps) => {
   const [localFilters, setLocalFilters] = useState<SearchFilters>(filters);
 
   const updateFilter = (key: keyof SearchFilters, value: string | undefined) => {
@@ -117,28 +119,60 @@ const SearchFiltersComponent = ({ filters, onFiltersChange, isOpen, onToggle }: 
           <Separator className="mb-4" />
           
           <div className="space-y-6">
-            {/* Tribunal */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center space-x-2">
-                <Building className="w-4 h-4 text-primary" />
-                <span>Tribunal</span>
-              </Label>
-              <Select 
-                value={localFilters.tribunal || ""} 
-                onValueChange={(value) => updateFilter('tribunal', value || undefined)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um tribunal" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TRIBUNALS.map((tribunal) => (
-                    <SelectItem key={tribunal} value={tribunal}>
-                      {tribunal}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Dynamic Filters from API */}
+            {dynamicFilters.map((dynamicFilter) => (
+              <div key={dynamicFilter.filtro} className="space-y-2">
+                <Label className="text-sm font-medium flex items-center space-x-2">
+                  <Building className="w-4 h-4 text-primary" />
+                  <span>{dynamicFilter.titulo}</span>
+                </Label>
+                <Select 
+                  value={localFilters[dynamicFilter.filtro as keyof SearchFilters] || ""} 
+                  onValueChange={(value) => updateFilter(dynamicFilter.filtro as keyof SearchFilters, value || undefined)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={`Selecione ${dynamicFilter.titulo.toLowerCase()}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dynamicFilter.opcoes.map((option) => (
+                      <SelectItem key={option.valor} value={option.valor}>
+                        <div className="flex justify-between items-center w-full">
+                          <span>{option.titulo}</span>
+                          <Badge variant="outline" className="ml-2 text-xs">
+                            {option.quantidade_correspondencias}
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+
+            {/* Static Filters */}
+            {dynamicFilters.length === 0 && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center space-x-2">
+                  <Building className="w-4 h-4 text-primary" />
+                  <span>Tribunal</span>
+                </Label>
+                <Select 
+                  value={localFilters.tribunal || ""} 
+                  onValueChange={(value) => updateFilter('tribunal', value || undefined)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um tribunal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TRIBUNALS.map((tribunal) => (
+                      <SelectItem key={tribunal} value={tribunal}>
+                        {tribunal}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Date Range */}
             <div className="space-y-3">

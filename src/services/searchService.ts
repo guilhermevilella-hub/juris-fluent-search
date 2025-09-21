@@ -75,7 +75,26 @@ async function generateSynonyms(query: string): Promise<string[]> {
   }
 }
 
-export async function searchEscavador(query: string, filters: any): Promise<any[]> {
+export interface FilterOption {
+  titulo: string;
+  sigla?: string;
+  valor: string;
+  quantidade_correspondencias: number;
+}
+
+export interface DynamicFilter {
+  titulo: string;
+  filtro: string;
+  selecao_unica: boolean;
+  opcoes: FilterOption[];
+}
+
+export interface SearchResponse {
+  results: any[];
+  filters: DynamicFilter[];
+}
+
+export async function searchEscavador(query: string, filters: any): Promise<SearchResponse> {
   try {
     console.log('Searching with query:', query, 'and filters:', filters);
     
@@ -120,24 +139,30 @@ export async function searchEscavador(query: string, filters: any): Promise<any[
       // If API returns 402 (no credit) or other errors, use mock data
       if (response.status === 402) {
         console.warn('API credit exhausted, using mock data');
-        return mockJurisprudencias.filter(item => 
-          item.titulo.toLowerCase().includes(query.toLowerCase()) ||
-          item.ementa.toLowerCase().includes(query.toLowerCase()) ||
-          item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
-        );
+        return {
+          results: mockJurisprudencias.filter(item => 
+            item.titulo.toLowerCase().includes(query.toLowerCase()) ||
+            item.ementa.toLowerCase().includes(query.toLowerCase()) ||
+            item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+          ),
+          filters: []
+        };
       }
       throw new Error(`Erro da API do Escavador: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
     
-    if (!data.items) {
+    if (!data.items && !data.filtros) {
       console.warn('No items returned from Escavador API, using mock data');
-      return mockJurisprudencias;
+      return {
+        results: mockJurisprudencias,
+        filters: []
+      };
     }
 
     // 5. Map the results to our format
-    const mappedResults = data.items.map((item: any) => ({
+    const mappedResults = (data.items || []).map((item: any) => ({
       id: item.id?.toString() || '',
       titulo: item.titulo || '',
       ementa: item.ementa || '',
@@ -150,17 +175,26 @@ export async function searchEscavador(query: string, filters: any): Promise<any[
       tipo_documento: item.tipo_documento || 'decisoes'
     }));
 
-    console.log('Search completed, found', mappedResults.length, 'results');
-    return mappedResults;
+    // 6. Extract dynamic filters from API response
+    const dynamicFilters: DynamicFilter[] = data.filtros || [];
+
+    console.log('Search completed, found', mappedResults.length, 'results and', dynamicFilters.length, 'filters');
+    return {
+      results: mappedResults,
+      filters: dynamicFilters
+    };
   } catch (error) {
     console.error("Erro na busca do Escavador:", error);
     // Fallback to mock data on any error
     console.warn('Using mock data due to API error');
-    return mockJurisprudencias.filter(item => 
-      item.titulo.toLowerCase().includes(query.toLowerCase()) ||
-      item.ementa.toLowerCase().includes(query.toLowerCase()) ||
-      item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
-    );
+    return {
+      results: mockJurisprudencias.filter(item => 
+        item.titulo.toLowerCase().includes(query.toLowerCase()) ||
+        item.ementa.toLowerCase().includes(query.toLowerCase()) ||
+        item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+      ),
+      filters: []
+    };
   }
 }
 
