@@ -18,6 +18,7 @@ interface JurisprudenceCardProps {
   tags: string[];
   score?: number;
   searchQuery?: string;
+  tipo_documento?: string;
 }
 
 const JurisprudenceCard = ({
@@ -31,7 +32,8 @@ const JurisprudenceCard = ({
   numero_processo,
   tags,
   score,
-  searchQuery
+  searchQuery,
+  tipo_documento
 }: JurisprudenceCardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -63,15 +65,16 @@ const JurisprudenceCard = ({
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    const documentType = tipo_documento?.toLowerCase() || 'acordao';
     try {
       await navigator.share({
         title: titulo,
         text: ementa.slice(0, 150) + "...",
-        url: `/documento/${id}`,
+        url: `/documento/${documentType}/${id}`,
       });
     } catch (error) {
       // Fallback to copy link
-      await navigator.clipboard.writeText(window.location.origin + `/documento/${id}`);
+      await navigator.clipboard.writeText(window.location.origin + `/documento/${documentType}/${id}`);
       toast({
         title: "Link copiado!",
         description: "Link da jurisprudência copiado para a área de transferência.",
@@ -169,7 +172,7 @@ const JurisprudenceCard = ({
       className={`card-jurisprudence cursor-pointer animate-fade-in border-l-4 ${getTribunalColor()} hover:shadow-lg hover:border-primary/20 transition-all duration-200`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => navigate(`/documento/${id}`)}
+      onClick={() => navigate(`/documento/${tipo_documento?.toLowerCase() || 'acordao'}/${id}`)}
     >
       {/* Header with metadata and relevance badge */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
@@ -242,7 +245,7 @@ const JurisprudenceCard = ({
               e.stopPropagation();
               addXP('open');
               updateMissionProgress('abrir-decisoes');
-              navigate(`/documento/${id}`);
+              navigate(`/documento/${tipo_documento?.toLowerCase() || 'acordao'}/${id}`);
             }}
           >
             <Eye className="w-4 h-4" />
