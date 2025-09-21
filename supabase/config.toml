@@ -120,3 +120,6 @@ secret = ""
 [edge_runtime]
 enabled = true
 port = 54327
+
+[functions.get-api-credentials]
+verify_jwt = false

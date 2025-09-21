@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-import ApiKeySettings from "./ApiKeySettings";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,7 +76,6 @@ const Header = () => {
           
           {/* Auth Buttons */}
           <div className="flex items-center space-x-3">
-            <ApiKeySettings />
             <Button 
               variant="ghost" 
               size="sm"

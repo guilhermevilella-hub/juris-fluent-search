@@ -1,22 +1,27 @@
-// API Keys management
-const getApiKey = (keyName: string): string | null => {
-  return localStorage.getItem(keyName);
-};
-
-export const setApiKey = (keyName: string, key: string): void => {
-  localStorage.setItem(keyName, key);
-};
-
-export const hasApiKeys = (): boolean => {
-  return !!(getApiKey('ESCAVADOR_API_KEY') && getApiKey('OPENAI_API_KEY'));
+// Get API credentials from Supabase securely
+const getApiCredentials = async (): Promise<{escavadorKey: string, openaiKey?: string}> => {
+  const { supabase } = await import('@/integrations/supabase/client');
+  
+  try {
+    const { data, error } = await supabase.functions.invoke('get-api-credentials');
+    
+    if (error) {
+      throw new Error('Erro ao obter credenciais da API');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error getting API credentials:', error);
+    throw error;
+  }
 };
 
 async function generateSynonyms(query: string): Promise<string[]> {
   try {
     console.log('Generating synonyms for:', query);
     
-    const openaiApiKey = getApiKey('OPENAI_API_KEY');
-    if (!openaiApiKey) {
+    const { openaiKey } = await getApiCredentials();
+    if (!openaiKey) {
       console.warn('OpenAI API key not found, skipping synonyms generation');
       return [];
     }
@@ -24,7 +29,7 @@ async function generateSynonyms(query: string): Promise<string[]> {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${openaiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -65,10 +70,7 @@ export async function searchEscavador(query: string, filters: any): Promise<any[
   try {
     console.log('Searching with query:', query, 'and filters:', filters);
     
-    const escavadorApiKey = getApiKey('ESCAVADOR_API_KEY');
-    if (!escavadorApiKey) {
-      throw new Error('Chave da API do Escavador não encontrada. Configure nas configurações.');
-    }
+    const { escavadorKey } = await getApiCredentials();
 
     // 1. Generate synonyms with AI
     const synonyms = await generateSynonyms(query);
@@ -100,7 +102,7 @@ export async function searchEscavador(query: string, filters: any): Promise<any[
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${escavadorApiKey}`,
+        'Authorization': `Bearer ${escavadorKey}`,
         'Content-Type': 'application/json',
       }
     });
@@ -142,10 +144,7 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
   try {
     console.log('Fetching document:', tipo, id);
     
-    const escavadorApiKey = getApiKey('ESCAVADOR_API_KEY');
-    if (!escavadorApiKey) {
-      throw new Error('Chave da API do Escavador não encontrada. Configure nas configurações.');
-    }
+    const { escavadorKey } = await getApiCredentials();
 
     // List of document types to try
     const documentTypes = [tipo, 'acordao', 'decisao', 'sentenca'];
@@ -159,7 +158,7 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
         const response = await fetch(url, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${escavadorApiKey}`,
+            'Authorization': `Bearer ${escavadorKey}`,
             'Content-Type': 'application/json',
           }
         });
