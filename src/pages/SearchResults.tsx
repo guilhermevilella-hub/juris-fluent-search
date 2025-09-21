@@ -81,6 +81,10 @@ const SearchResults = () => {
     try {
       // Chame a nova função que já inclui a geração de sinônimos e a chamada à API do Escavador
       const data = await searchEscavador(query, searchFilters);
+      
+      // Salvar resultados no sessionStorage para uso posterior
+      sessionStorage.setItem('searchResults', JSON.stringify(data));
+      
       setResults(data);
     } catch (error) {
       console.error('Erro na busca:', error);

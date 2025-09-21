@@ -15,7 +15,10 @@ serve(async (req) => {
   try {
     const { tipo, id } = await req.json();
     
+    console.log('Received parameters:', { tipo, id });
+    
     if (!tipo || !id) {
+      console.error('Missing parameters:', { tipo, id });
       return new Response(
         JSON.stringify({ error: 'tipo and id parameters are required' }),
         { 
@@ -37,30 +40,58 @@ serve(async (req) => {
       );
     }
 
-    console.log('Fetching document:', tipo, id);
+    console.log('Fetching document with params:', { tipo, id });
+    
+    // Tentar diferentes tipos de documento se o primeiro falhar
+    const documentTypes = [tipo, 'acordao', 'decisao', 'sentenca'];
+    let lastError = null;
+    let response = null;
 
-    // Call Escavador API for document details
-    const response = await fetch(`https://api.escavador.com/api/v1/jurisprudencias/documento/${tipo}/${id}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${escavadorApiKey}`,
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/json',
-      },
-    });
+    for (const docType of documentTypes) {
+      const url = `https://api.escavador.com/api/v1/jurisprudencias/documento/${docType}/${id}`;
+      console.log('Trying URL:', url);
+      
+      try {
+        response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${escavadorApiKey}`,
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        });
+        
+        if (response.ok) {
+          console.log('Success with document type:', docType);
+          break;
+        } else {
+          console.log(`Failed with ${docType}:`, response.status, response.statusText);
+          if (response.status !== 404) {
+            // Se não é 404, pode ser outro erro que devemos reportar
+            lastError = { status: response.status, statusText: response.statusText, url };
+            break;
+          }
+        }
+      } catch (err) {
+        console.error(`Error trying ${docType}:`, err);
+        lastError = err;
+      }
+    }
 
-    if (!response.ok) {
-      console.error('Escavador API error:', response.status, response.statusText);
-      const errorText = await response.text();
+    if (!response || !response.ok) {
+      console.error('All document types failed. Last error:', lastError);
+      const errorText = response ? await response.text() : 'No response received';
       console.error('Error response:', errorText);
       
       return new Response(
         JSON.stringify({ 
-          error: `Escavador API error: ${response.statusText}`,
-          details: errorText 
+          error: `Document not found with ID: ${id}. Tried types: ${documentTypes.join(', ')}`,
+          details: lastError || 'All document types returned 404',
+          id,
+          tipo,
+          triedTypes: documentTypes
         }),
         { 
-          status: response.status, 
+          status: 404, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );

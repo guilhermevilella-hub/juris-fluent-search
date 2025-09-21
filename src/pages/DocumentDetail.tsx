@@ -41,16 +41,38 @@ const DocumentDetail = () => {
 
   useEffect(() => {
     const fetchDocument = async () => {
+      if (!id) return;
+      
+      console.log('Fetching document with ID:', id);
       setIsLoading(true);
       try {
         const { getDocument } = await import('@/services/searchService');
-        const data = await getDocument('acordao', id); // Assumindo 'acordao' como tipo
+        
+        // Tentar determinar o tipo a partir do contexto ou usar um padrão
+        let documentType = 'acordao'; // padrão
+        
+        // Se o ID vem de uma busca anterior, pode estar no sessionStorage
+        const searchResults = sessionStorage.getItem('searchResults');
+        if (searchResults) {
+          try {
+            const results = JSON.parse(searchResults);
+            const currentDoc = results.find((doc: any) => doc.id === id);
+            if (currentDoc && currentDoc.tipo_documento) {
+              documentType = currentDoc.tipo_documento.toLowerCase();
+            }
+          } catch (e) {
+            console.log('Could not parse search results from session');
+          }
+        }
+        
+        console.log('Using document type:', documentType);
+        const data = await getDocument(documentType, id);
         setDocument(data);
       } catch (error) {
         console.error('Erro ao carregar o documento:', error);
         toast({
           title: "Erro ao carregar documento",
-          description: "Não foi possível carregar o documento solicitado.",
+          description: `Não foi possível carregar o documento ${id}. ${error.message || 'Erro desconhecido.'}`,
           variant: "destructive",
         });
       } finally {
@@ -58,10 +80,8 @@ const DocumentDetail = () => {
       }
     };
 
-    if (id) {
-      fetchDocument();
-    }
-  }, [id]);
+    fetchDocument();
+  }, [id, toast]);
 
   const handleCopy = (content: string, type: string) => {
     setSelectedText(content);
