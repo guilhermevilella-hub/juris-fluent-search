@@ -243,14 +243,16 @@ const DocumentDetail = () => {
             </div>
 
             {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {document.tags.map((tag, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center space-x-1">
-                  <Tag className="w-3 h-3" />
-                  <span>{tag}</span>
-                </Badge>
-              ))}
-            </div>
+            {document.tags && document.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {document.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center space-x-1">
+                    <Tag className="w-3 h-3" />
+                    <span>{tag}</span>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Content Tabs */}
