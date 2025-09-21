@@ -129,7 +129,7 @@ export async function searchEscavador(query: string, filters: any): Promise<any[
       numero_processo: item.numero_processo || '',
       tags: item.tags || [],
       score: item.score || 0,
-      tipo_documento: item.tipo_documento || 'acordao'
+      tipo_documento: item.tipo_documento || 'decisoes'
     }));
 
     console.log('Search completed, found', mappedResults.length, 'results');
@@ -147,7 +147,7 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
     const { escavadorKey } = await getApiCredentials();
 
     // List of document types to try
-    const documentTypes = [tipo, 'acordao', 'decisao', 'sentenca'];
+    const documentTypes = [tipo, 'decisoes', 'decisao', 'sentenca'];
     
     for (const docType of documentTypes) {
       try {
