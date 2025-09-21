@@ -10,9 +10,9 @@ interface JurisprudenceCardProps {
   id: string;
   titulo: string;
   ementa: string;
-  tribunal: string;
+  tribunal: any;
   orgao_julgador: string;
-  relator: string;
+  relator: any;
   data_julgamento: string;
   numero_processo: string;
   tags: string[];
@@ -133,7 +133,8 @@ const JurisprudenceCard = ({
   };
 
   const getTribunalColor = () => {
-    switch (tribunal) {
+    const tribunalSigla = typeof tribunal === 'object' ? tribunal?.sigla : tribunal;
+    switch (tribunalSigla) {
       case 'STF': return 'border-l-success';
       case 'STJ': return 'border-l-primary';
       default: return 'border-l-muted-foreground';
@@ -174,7 +175,9 @@ const JurisprudenceCard = ({
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
           <Building className="w-3 h-3" />
-          <span className="font-medium text-primary">{tribunal}</span>
+          <span className="font-medium text-primary">
+            {typeof tribunal === 'object' ? tribunal?.nome || tribunal?.sigla : tribunal}
+          </span>
           <span>•</span>
           <span>{orgao_julgador}</span>
         </div>
@@ -196,7 +199,7 @@ const JurisprudenceCard = ({
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mb-4">
         <div className="flex items-center space-x-1">
           <User className="w-3 h-3" />
-          <span>Rel. {relator}</span>
+          <span>Rel. {typeof relator === 'object' ? relator?.nome : relator}</span>
         </div>
         <div className="flex items-center space-x-1">
           <Calendar className="w-3 h-3" />
