@@ -129,7 +129,7 @@ export async function searchEscavador(query: string, filters: any): Promise<any[
       numero_processo: item.numero_processo || '',
       tags: item.tags || [],
       score: item.score || 0,
-      tipo_documento: item.tipo_documento || 'acordao'
+      tipo_documento: item.tipo_documento || 'decisoes'
     }));
 
     console.log('Search completed, found', mappedResults.length, 'results');
@@ -146,8 +146,11 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
     
     const { escavadorKey } = await getApiCredentials();
 
+    // Use 'decisoes' as default if tipo is null, undefined or empty
+    const primaryType = tipo && tipo.trim() !== '' ? tipo : 'decisoes';
+    
     // List of document types to try - use 'decisoes' as default fallback
-    const documentTypes = [tipo, 'decisoes', 'acordao', 'decisao', 'sentenca'];
+    const documentTypes = [primaryType, 'decisoes', 'acordao', 'decisao', 'sentenca'];
     
     for (const docType of documentTypes) {
       try {
