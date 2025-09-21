@@ -198,14 +198,53 @@ export async function searchEscavador(query: string, filters: any): Promise<Sear
   }
 }
 
+// Helper function to get available document types from API
+async function getAvailableDocumentTypes(escavadorKey: string): Promise<string[]> {
+  try {
+    // Try to get document types from the API metadata endpoint
+    const metadataUrl = 'https://api.escavador.com/api/v1/jurisprudencias/metadata';
+    const response = await fetch(metadataUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${escavadorKey}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.document_types) {
+        console.log('Available document types from API:', data.document_types);
+        return data.document_types;
+      }
+    }
+  } catch (error) {
+    console.log('Could not fetch document types from API metadata:', error);
+  }
+
+  // Fallback to common document types
+  return [
+    'acordao', 'decisoes', 'decisao', 'sentenca', 'despacho', 
+    'ementa', 'voto', 'relatorio', 'monocratica', 'colegiada'
+  ];
+}
+
 export async function getDocument(tipo: string, id: string): Promise<any> {
   try {
     console.log('Fetching document:', tipo, id);
     
     const { escavadorKey } = await getApiCredentials();
 
-    // List of document types to try
-    const documentTypes = [tipo, 'decisoes', 'decisao', 'sentenca'];
+    // Get available document types dynamically
+    const availableTypes = await getAvailableDocumentTypes(escavadorKey);
+    
+    // Create dynamic list prioritizing the requested type
+    const documentTypes = [
+      tipo, 
+      ...availableTypes.filter(t => t !== tipo)
+    ];
+    
+    console.log('Trying document types in order:', documentTypes);
     
     for (const docType of documentTypes) {
       try {
@@ -224,7 +263,7 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
         if (response.ok) {
           const data = await response.json();
           console.log('Document fetched successfully with type:', docType);
-          return data;
+          return { ...data, document_type: docType }; // Include the successful type in response
         } else if (response.status === 402) {
           // If API returns 402 (no credit), use mock data
           console.warn('API credit exhausted, using mock data for document:', id);
@@ -232,8 +271,10 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
           if (mockDoc) {
             return mockDoc;
           }
+        } else if (response.status === 404) {
+          console.log(`Document not found with type ${docType}, trying next type`);
         } else {
-          console.log(`Failed to fetch with type ${docType}: ${response.status}`);
+          console.log(`Failed to fetch with type ${docType}: ${response.status} ${response.statusText}`);
         }
       } catch (error) {
         console.log(`Error fetching with type ${docType}:`, error);
