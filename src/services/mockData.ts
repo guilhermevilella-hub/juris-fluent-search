@@ -62,6 +62,70 @@ export const mockJurisprudencias = [
   }
 ];
 
+export const mockDocuments = {
+  "11632150": {
+    id: 11632150,
+    tipo: "Decisão",
+    tipo_precedente: null,
+    codigo: "EDCiv-Ag-ARR - 21449-22.2017.5.04.0021",
+    recurso_nome: "Embargos em Dissídio Coletivo em Agravo Regimental em Recurso de Revista com Agravo",
+    recurso_nome_gerado: "Embargos em Dissídio Coletivo em Agravo Regimental em Recurso de Revista com Agravo",
+    numero: "21449-22.2017.5.04.0021",
+    origem: {
+      sigla: "DF",
+      nome: "Distrito Federal"
+    },
+    relator: {
+      id: 198,
+      nome: "Mauricio Godinho Delgado",
+      nome_completo: "Vice-Presidente do TST Mauricio Godinho Delgado",
+      nome_prefixo: "Vice-Presidente do TST",
+      nome_sufixo: null,
+      tipo: "Relator",
+      link: "https://www.escavador.com/jurisprudencia/envolvidos/198/mauricio-godinho-delgado"
+    },
+    orgao_julgador: "Terceira Turma - TST",
+    data_julgamento: null,
+    data_publicacao: "14/02/2025",
+    tribunal: {
+      sigla: "TST",
+      nome: "Tribunal Superior do Trabalho"
+    },
+    ementa: "Recorrente: COMPANHIA ESTADUAL DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - CEEE-D<br/>Advogado: Dr. RAFAEL NARITA DE BARROS NUNES<br/>Advogada: Dra. DENISE PIRES FINCATO<br/>Recorrido: CARLOS MARIANO DI MARE<br/>Advogado: Dr. MAURO DE AZEVEDO MENEZES<br/>GVPMGD/tv/sbs<br/>D E C I S Ã O<br/>Trata-se de recurso extraordinário interposto contra acórdão proferido por esta Corte Superior Trabalhista, em que a Parte se insurge quanto à matéria \"dispensa discriminatória - critério etário\" .<br/>A Parte argui prefacial de repercussão geral .<br/>É o relatório.<br/>A Turma desta Corte assim decidiu:<br/>II) MÉRITO<br/>DISPENSA BASEADA EM CRITÉRIO DE APOSENTADORIA E APTIDÃO PARA A APOSENTADORIA. CEEE-D. REINTEGRAÇÃO<br/>A decisão agravada foi proferida nos seguintes termos:<br/>\"I – AGRAVO DE INSTRUMENTO<br/>O primeiro juízo de admissibilidade do recurso de revista, ao exame do tema ' nulidade por negativa de prestação jurisdicional ', denegou-lhe seguimento. Inconformado, o Reclamado interpõe o presente agravo de instrumento. Dispensada a remessa dos autos ao MPT, nos termos do art. 95, § 2º, do RITST.<br/>PROCESSO SOB A ÉGIDE DA LEI 13.015/2014 E ANTERIOR À LEI 13.467/2017.<br/>Em se tratando de recurso interposto em processo iniciado anteriormente à vigência das alterações promovidas pela Lei n. 13.467, de 13 de julho de 2017, e considerando que as relações jurídicas materiais e processuais produziram amplos efeitos sob a normatividade anterior, as matérias serão analisadas com observância das normas então vigorantes, em respeito ao princípio da segurança jurídica, assegurando-se a estabilidade das relações já consolidadas (arts. 5º, XXXVI, da CF; 6º da LINDB; 912 da CLT; 14 do CPC/2015; e 1º da IN 41 de 2018 do TST).<br/>A dispensa foi considerada discriminatória por basear-se em critério etário, violando os princípios constitucionais da dignidade da pessoa humana e da não discriminação. O Tribunal Superior do Trabalho consolidou entendimento de que dispensas coletivas baseadas exclusivamente na idade ou condição de aposentabilidade dos empregados configuram ato discriminatório, sendo nulas de pleno direito conforme o art. 1º da Lei 9.029/95.<br/>DECIDIU-SE pela reintegração do empregado e pagamento de indenização por danos morais no valor de R$ 10.000,00, além das verbas salariais do período de afastamento."
+  },
+  "9205401": {
+    id: 9205401,
+    tipo: "Acórdão",
+    tipo_precedente: null,
+    codigo: "RR - 1234-56.2018.5.02.0001",
+    recurso_nome: "Recurso de Revista",
+    recurso_nome_gerado: "Recurso de Revista",
+    numero: "1234-56.2018.5.02.0001",
+    origem: {
+      sigla: "SP",
+      nome: "São Paulo"
+    },
+    relator: {
+      id: 301,
+      nome: "Maria José dos Santos",
+      nome_completo: "Ministra Maria José dos Santos",
+      nome_prefixo: "Ministra",
+      nome_sufixo: null,
+      tipo: "Relatora",
+      link: "https://www.escavador.com/jurisprudencia/envolvidos/301/maria-jose-dos-santos"
+    },
+    orgao_julgador: "Segunda Turma - TST",
+    data_julgamento: "20/01/2025",
+    data_publicacao: "25/01/2025",
+    tribunal: {
+      sigla: "TST",
+      nome: "Tribunal Superior do Trabalho"
+    },
+    ementa: "RECURSO DE REVISTA. JUSTA CAUSA. ABANDONO DE EMPREGO. CARACTERIZAÇÃO. Para configurar o abandono de emprego, não basta o simples não comparecimento ao trabalho, sendo necessário que este seja acompanhado do elemento subjetivo, qual seja, a intenção do empregado de não mais continuar a relação empregatícia. A ausência ao trabalho por período superior a 30 dias, sem justificativa, presume o abandono, desde que precedida de notificação. No caso concreto, restou comprovado que o empregado se ausentou por 45 dias consecutivos, mesmo após notificação, não apresentando qualquer justificativa. Recurso conhecido e provido."
+  }
+};
+
+// Legacy format for backward compatibility
 export const mockDocumentDetails = {
   '11632147': {
     id: '11632147',
