@@ -1,3 +1,5 @@
+import { mockJurisprudencias, mockDocumentDetails, mockSynonyms } from './mockData';
+
 // Get API credentials from Supabase securely
 const getApiCredentials = async (): Promise<{escavadorKey: string, openaiKey?: string}> => {
   const { supabase } = await import('@/integrations/supabase/client');
@@ -19,6 +21,13 @@ const getApiCredentials = async (): Promise<{escavadorKey: string, openaiKey?: s
 async function generateSynonyms(query: string): Promise<string[]> {
   try {
     console.log('Generating synonyms for:', query);
+    
+    // Use mock data first
+    const mockResult = mockSynonyms[query.toLowerCase()];
+    if (mockResult) {
+      console.log('Using mock synonyms:', mockResult);
+      return mockResult;
+    }
     
     const { openaiKey } = await getApiCredentials();
     if (!openaiKey) {
@@ -51,7 +60,7 @@ async function generateSynonyms(query: string): Promise<string[]> {
 
     if (!response.ok) {
       console.error('OpenAI API error:', response.statusText);
-      return [];
+      return mockResult || [];
     }
 
     const data = await response.json();
@@ -62,7 +71,7 @@ async function generateSynonyms(query: string): Promise<string[]> {
     return synonyms;
   } catch (error) {
     console.error('Error generating synonyms:', error);
-    return [];
+    return mockSynonyms[query.toLowerCase()] || [];
   }
 }
 
@@ -108,14 +117,23 @@ export async function searchEscavador(query: string, filters: any): Promise<any[
     });
 
     if (!response.ok) {
+      // If API returns 402 (no credit) or other errors, use mock data
+      if (response.status === 402) {
+        console.warn('API credit exhausted, using mock data');
+        return mockJurisprudencias.filter(item => 
+          item.titulo.toLowerCase().includes(query.toLowerCase()) ||
+          item.ementa.toLowerCase().includes(query.toLowerCase()) ||
+          item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+        );
+      }
       throw new Error(`Erro da API do Escavador: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
     
     if (!data.items) {
-      console.warn('No items returned from Escavador API');
-      return [];
+      console.warn('No items returned from Escavador API, using mock data');
+      return mockJurisprudencias;
     }
 
     // 5. Map the results to our format
@@ -136,7 +154,13 @@ export async function searchEscavador(query: string, filters: any): Promise<any[
     return mappedResults;
   } catch (error) {
     console.error("Erro na busca do Escavador:", error);
-    throw error;
+    // Fallback to mock data on any error
+    console.warn('Using mock data due to API error');
+    return mockJurisprudencias.filter(item => 
+      item.titulo.toLowerCase().includes(query.toLowerCase()) ||
+      item.ementa.toLowerCase().includes(query.toLowerCase()) ||
+      item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+    );
   }
 }
 
@@ -167,6 +191,13 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
           const data = await response.json();
           console.log('Document fetched successfully with type:', docType);
           return data;
+        } else if (response.status === 402) {
+          // If API returns 402 (no credit), use mock data
+          console.warn('API credit exhausted, using mock data for document:', id);
+          const mockDoc = mockDocumentDetails[id as keyof typeof mockDocumentDetails];
+          if (mockDoc) {
+            return mockDoc;
+          }
         } else {
           console.log(`Failed to fetch with type ${docType}: ${response.status}`);
         }
@@ -175,9 +206,22 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
       }
     }
     
+    // If no document type worked, try mock data
+    console.warn('Document not found via API, checking mock data for:', id);
+    const mockDoc = mockDocumentDetails[id as keyof typeof mockDocumentDetails];
+    if (mockDoc) {
+      return mockDoc;
+    }
+    
     throw new Error('Documento não encontrado com nenhum dos tipos disponíveis');
   } catch (error) {
     console.error("Erro ao buscar documento:", error);
+    // Fallback to mock data on any error
+    const mockDoc = mockDocumentDetails[id as keyof typeof mockDocumentDetails];
+    if (mockDoc) {
+      console.warn('Using mock document due to API error:', id);
+      return mockDoc;
+    }
     throw error;
   }
 }
