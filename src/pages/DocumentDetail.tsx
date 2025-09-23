@@ -186,7 +186,7 @@ const DocumentDetail = () => {
                   <div className="flex items-center space-x-2 text-sm">
                     <Building className="w-4 h-4 text-primary" />
                     <div>
-                      <p className="font-medium text-foreground">{document.tribunal}</p>
+                      <p className="font-medium text-foreground">{document.tribunal?.nome || document.tribunal}</p>
                       <p className="text-muted-foreground">{document.orgao_julgador}</p>
                     </div>
                   </div>
@@ -199,7 +199,7 @@ const DocumentDetail = () => {
                     <User className="w-4 h-4 text-primary" />
                     <div>
                       <p className="font-medium text-foreground">Relator</p>
-                      <p className="text-muted-foreground">{document.relator}</p>
+                      <p className="text-muted-foreground">{document.relator?.nome || document.relator}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -211,7 +211,10 @@ const DocumentDetail = () => {
                     <Calendar className="w-4 h-4 text-primary" />
                     <div>
                       <p className="font-medium text-foreground">Data do Julgamento</p>
-                      <p className="text-muted-foreground">{formatDate(document.data_julgamento)}</p>
+                      <p className="text-muted-foreground">
+                        {document.data_julgamento ? formatDate(document.data_julgamento) : 
+                         document.data_publicacao ? formatDate(document.data_publicacao) : 'Data não informada'}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -223,7 +226,7 @@ const DocumentDetail = () => {
                     <FileText className="w-4 h-4 text-primary" />
                     <div>
                       <p className="font-medium text-foreground">Número do Processo</p>
-                      <p className="text-muted-foreground">{document.numero_processo}</p>
+                      <p className="text-muted-foreground">{document.numero_processo || document.numero || 'Não informado'}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -235,7 +238,7 @@ const DocumentDetail = () => {
                     <Scale className="w-4 h-4 text-primary" />
                     <div>
                       <p className="font-medium text-foreground">Classe/Assunto</p>
-                      <p className="text-muted-foreground">{document.classe_assunto}</p>
+                      <p className="text-muted-foreground">{document.classe_assunto || document.recurso_nome || document.tipo || 'Não informado'}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -243,14 +246,16 @@ const DocumentDetail = () => {
             </div>
 
             {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {document.tags.map((tag, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center space-x-1">
-                  <Tag className="w-3 h-3" />
-                  <span>{tag}</span>
-                </Badge>
-              ))}
-            </div>
+            {document.tags && document.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {document.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center space-x-1">
+                    <Tag className="w-3 h-3" />
+                    <span>{tag}</span>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Content Tabs */}
@@ -301,7 +306,7 @@ const DocumentDetail = () => {
                 <CardContent>
                   <div className="prose prose-sm max-w-none">
                     <div className="text-foreground leading-relaxed whitespace-pre-line">
-                      {document.inteiro_teor}
+                      {document.inteiro_teor || document.conteudo_completo || document.decisao || 'Conteúdo não disponível'}
                     </div>
                   </div>
                 </CardContent>
