@@ -176,7 +176,9 @@ const DocumentDetail = () => {
           {/* Document Header */}
           <div className="mb-8">
             <h1 className="text-2xl md:text-3xl font-bold text-primary mb-4 leading-tight">
-              {document.titulo}
+              {typeof document.titulo === 'string' ? document.titulo : 
+               typeof document.titulo === 'object' ? JSON.stringify(document.titulo) : 
+               'Documento sem título'}
             </h1>
             
             {/* Metadata Grid */}
@@ -283,7 +285,9 @@ const DocumentDetail = () => {
                 <CardContent>
                   <div className="prose prose-sm max-w-none">
                     <p className="text-foreground leading-relaxed whitespace-pre-line">
-                      {document.ementa}
+                      {typeof document.ementa === 'string' ? document.ementa : 
+                       typeof document.ementa === 'object' ? JSON.stringify(document.ementa, null, 2) : 
+                       'Ementa não disponível'}
                     </p>
                   </div>
                 </CardContent>
@@ -306,7 +310,21 @@ const DocumentDetail = () => {
                 <CardContent>
                   <div className="prose prose-sm max-w-none">
                     <div className="text-foreground leading-relaxed whitespace-pre-line">
-                      {document.inteiro_teor || document.conteudo_completo || document.decisao || 'Conteúdo não disponível'}
+                      {(() => {
+                        const content = document.inteiro_teor || document.conteudo_completo || document.decisao;
+                        if (typeof content === 'string') {
+                          return content;
+                        } else if (typeof content === 'object' && content !== null) {
+                          // Handle object with secoes structure
+                          if (content.secoes && Array.isArray(content.secoes)) {
+                            return content.secoes.map((secao, index) => (
+                              typeof secao === 'string' ? secao : JSON.stringify(secao)
+                            )).join('\n\n');
+                          }
+                          return JSON.stringify(content, null, 2);
+                        }
+                        return 'Conteúdo não disponível';
+                      })()}
                     </div>
                   </div>
                 </CardContent>
