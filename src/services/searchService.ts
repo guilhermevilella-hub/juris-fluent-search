@@ -18,6 +18,12 @@ const getApiCredentials = async (): Promise<{escavadorKey: string, openaiKey?: s
   }
 };
 
+// Function to sanitize search terms and remove regex special characters
+function sanitizeSearchTerm(term: string): string {
+  // Remove or escape regex special characters that could cause issues
+  return term.replace(/[*+?^${}()|[\]\\]/g, '\\$&').trim();
+}
+
 async function generateSynonyms(query: string): Promise<string[]> {
   try {
     console.log('Generating synonyms for:', query);
@@ -26,7 +32,7 @@ async function generateSynonyms(query: string): Promise<string[]> {
     const mockResult = mockSynonyms[query.toLowerCase()];
     if (mockResult) {
       console.log('Using mock synonyms:', mockResult);
-      return mockResult;
+      return mockResult.map(sanitizeSearchTerm);
     }
     
     const { openaiKey } = await getApiCredentials();
@@ -46,7 +52,7 @@ async function generateSynonyms(query: string): Promise<string[]> {
         messages: [
           {
             role: 'system',
-            content: 'Você é um especialista em pesquisa jurídica. Gere até 5 sinônimos ou termos relacionados para expandir a busca jurídica. Responda apenas com uma lista de palavras separadas por vírgula, sem explicações.'
+            content: 'Você é um especialista em pesquisa jurídica. Gere até 5 sinônimos ou termos relacionados para expandir a busca jurídica. Responda apenas com uma lista de palavras separadas por vírgula, sem explicações. Evite usar caracteres especiais como asteriscos ou colchetes.'
           },
           {
             role: 'user',
@@ -60,18 +66,20 @@ async function generateSynonyms(query: string): Promise<string[]> {
 
     if (!response.ok) {
       console.error('OpenAI API error:', response.statusText);
-      return mockResult || [];
+      return mockResult?.map(sanitizeSearchTerm) || [];
     }
 
     const data = await response.json();
     const synonymsText = data.choices[0]?.message?.content || '';
-    const synonyms = synonymsText.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0);
+    const synonyms = synonymsText.split(',')
+      .map((s: string) => sanitizeSearchTerm(s))
+      .filter((s: string) => s.length > 0);
     
     console.log('Generated synonyms:', synonyms);
     return synonyms;
   } catch (error) {
     console.error('Error generating synonyms:', error);
-    return mockSynonyms[query.toLowerCase()] || [];
+    return mockSynonyms[query.toLowerCase()]?.map(sanitizeSearchTerm) || [];
   }
 }
 

@@ -111,11 +111,11 @@ Exemplo: "culpa exclusiva da vítima, excludente de responsabilidade, ausência 
         messages: [
           {
             role: 'system',
-            content: systemPrompt
+            content: `${systemPrompt} IMPORTANTE: Não use asteriscos, colchetes ou outros caracteres especiais nos termos. Use apenas letras, números, espaços e vírgulas.`
           },
           {
             role: 'user',
-            content: `${analysisPrompt}\n\nNome do arquivo: ${file.name}\nTipo: ${file.type}\n\nPor favor, analise o contexto baseado no nome e tipo do arquivo e forneça termos jurídicos relevantes para pesquisa de jurisprudências.`
+            content: `${analysisPrompt}\n\nNome do arquivo: ${file.name}\nTipo: ${file.type}\n\nPor favor, analise o contexto baseado no nome e tipo do arquivo e forneça termos jurídicos relevantes para pesquisa de jurisprudências. Evite usar caracteres especiais.`
           }
         ],
         max_tokens: 500,
@@ -129,7 +129,10 @@ Exemplo: "culpa exclusiva da vítima, excludente de responsabilidade, ausência 
     }
 
     const data = await response.json();
-    const extractedTerms = data.choices[0].message.content.trim();
+    let extractedTerms = data.choices[0].message.content.trim();
+    
+    // Sanitize extracted terms to remove regex special characters
+    extractedTerms = extractedTerms.replace(/[*+?^${}()|[\]\\]/g, '');
     
     console.log(`Extracted terms: ${extractedTerms}`);
     
