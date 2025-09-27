@@ -30,7 +30,7 @@ const PRICING_PLANS: PricingPlan[] = [
     monthlyPrice: 49.90,
     yearlyPrice: 499, // 2 months free
     features: [
-      'Até 10 consultas de jurisprudência por mês',
+      'Até 10 consultas de jurisprudência ou pesquisas mensais',
       'Pesquisas básicas nos tribunais',
       'Histórico de 30 dias',
       'Suporte por email',
@@ -48,7 +48,7 @@ const PRICING_PLANS: PricingPlan[] = [
     popular: true,
     badge: 'Mais Popular',
     features: [
-      'Até 20 consultas de jurisprudência por mês',
+      'Até 20 consultas de jurisprudência ou pesquisas mensais',
       'Pesquisas avançadas nos tribunais',
       'Histórico de 90 dias',
       'Suporte prioritário',
@@ -57,34 +57,17 @@ const PRICING_PLANS: PricingPlan[] = [
     ],
     limitations: [],
     cta: 'Assinar Intermediário'
-  },
-  {
-    id: 'anual',
-    name: 'Plano Anual (Econômico)',
-    description: 'Desconto exclusivo',
-    monthlyPrice: 0, // Not applicable for annual-only plan
-    yearlyPrice: 399, // Discounted yearly price
-    badge: 'Econômico',
-    features: [
-      'Escolha entre 10 ou 20 consultas/mês',
-      'Pagamento único anual',
-      'Desconto exclusivo para pagamento anual',
-      'Mesmos benefícios do plano escolhido',
-      'Suporte por email'
-    ],
-    limitations: ['Disponível apenas para pagamento anual'],
-    cta: 'Assinar Anual'
   }
 ];
 
 const FEATURES_COMPARISON = [
-  { feature: 'Consultas por mês', start: '10', pro: '20', juris: '10 ou 20*' },
-  { feature: 'Histórico', start: '30 dias', pro: '90 dias', juris: 'Conforme plano' },
-  { feature: 'Exportação PDF', start: '❌', pro: '✅', juris: 'Conforme plano' },
-  { feature: 'Tribunais', start: 'Principais', pro: 'Todos', juris: 'Conforme plano' },
-  { feature: 'Pesquisas', start: 'Básicas', pro: 'Avançadas', juris: 'Conforme plano' },
-  { feature: 'Pagamento', start: 'Mensal', pro: 'Mensal', juris: 'Anual' },
-  { feature: 'Suporte', start: 'Email', pro: 'Prioritário', juris: 'Email' }
+  { feature: 'Consultas por mês', start: '10', pro: '20' },
+  { feature: 'Histórico', start: '30 dias', pro: '90 dias' },
+  { feature: 'Exportação PDF', start: '❌', pro: '✅' },
+  { feature: 'Tribunais', start: 'Principais', pro: 'Todos' },
+  { feature: 'Pesquisas', start: 'Básicas', pro: 'Avançadas' },
+  { feature: 'Pagamento', start: 'Mensal', pro: 'Mensal' },
+  { feature: 'Suporte', start: 'Email', pro: 'Prioritário' }
 ];
 
 const Pricing = () => {
@@ -149,11 +132,10 @@ const Pricing = () => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {PRICING_PLANS.map((plan) => {
-            // For annual plan, show yearly price divided by 12, for others use monthly/yearly based on toggle
-            const price = (plan.id === 'anual') ? plan.yearlyPrice : (isYearly ? plan.yearlyPrice : plan.monthlyPrice);
-            const monthlyEquivalent = (plan.id === 'anual') ? plan.yearlyPrice / 12 : (isYearly ? plan.yearlyPrice / 12 : plan.monthlyPrice);
+            const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+            const monthlyEquivalent = isYearly ? plan.yearlyPrice / 12 : plan.monthlyPrice;
             
             return (
               <Card 
@@ -191,21 +173,14 @@ const Pricing = () => {
                       <span className="text-lg text-muted-foreground font-normal">/mês</span>
                     </div>
                     
-                    {(isYearly || plan.id === 'anual') && (
+                    {isYearly && (
                       <div className="space-y-1">
                         <p className="text-sm text-muted-foreground">
-                          {plan.id === 'anual' ? formatPrice(price) + ' por ano' : formatPrice(price) + ' cobrado anualmente'}
+                          {formatPrice(price)} cobrado anualmente
                         </p>
-                        {plan.id !== 'anual' && (
-                          <Badge variant="outline" className="text-success border-success/20">
-                            {calculateYearlyDiscount(plan.monthlyPrice, plan.yearlyPrice)}% de desconto
-                          </Badge>
-                        )}
-                        {plan.id === 'anual' && (
-                          <Badge variant="outline" className="text-success border-success/20">
-                            Desconto Exclusivo
-                          </Badge>
-                        )}
+                        <Badge variant="outline" className="text-success border-success/20">
+                          {calculateYearlyDiscount(plan.monthlyPrice, plan.yearlyPrice)}% de desconto
+                        </Badge>
                       </div>
                     )}
                   </div>
@@ -270,7 +245,6 @@ const Pricing = () => {
                     <th className="text-left p-4 font-medium text-foreground">Recursos</th>
                     <th className="text-center p-4 font-medium text-foreground">Básico</th>
                     <th className="text-center p-4 font-medium text-foreground">Intermediário</th>
-                    <th className="text-center p-4 font-medium text-foreground">Anual</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -279,7 +253,6 @@ const Pricing = () => {
                       <td className="p-4 text-sm text-foreground">{row.feature}</td>
                       <td className="p-4 text-sm text-center text-muted-foreground">{row.start}</td>
                       <td className="p-4 text-sm text-center text-muted-foreground">{row.pro}</td>
-                      <td className="p-4 text-sm text-center text-muted-foreground">{row.juris}</td>
                     </tr>
                   ))}
                 </tbody>
