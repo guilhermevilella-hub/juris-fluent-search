@@ -6,6 +6,73 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Simple text extraction for PDFs (basic approach)
+async function extractTextFromPDF(buffer: Uint8Array): Promise<string> {
+  try {
+    // Convert buffer to string and try to extract readable text
+    const text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
+    
+    // Basic PDF text extraction - look for text between parentheses and common patterns
+    const textMatches = text.match(/\((.*?)\)/g);
+    if (textMatches) {
+      return textMatches
+        .map(match => match.replace(/[()]/g, ''))
+        .filter(text => text.length > 2 && /[a-zA-ZÀ-ÿ]/.test(text))
+        .join(' ')
+        .substring(0, 5000); // Limit to first 5000 chars
+    }
+    
+    // Fallback: extract any readable text
+    const readableText = text.replace(/[^\x20-\x7E\u00C0-\u017F]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    return readableText.substring(0, 5000);
+  } catch (error) {
+    console.error('Error extracting PDF text:', error);
+    return '';
+  }
+}
+
+// Simple text extraction for Word documents (basic approach)
+async function extractTextFromWord(buffer: Uint8Array): Promise<string> {
+  try {
+    // Convert buffer to string and extract readable text
+    const text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
+    
+    // Extract readable text by filtering out binary data
+    const readableText = text.replace(/[^\x20-\x7E\u00C0-\u017F]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .replace(/[^\w\s\u00C0-\u017F.,;:!?()"-]/g, '')
+      .trim();
+    
+    return readableText.substring(0, 5000);
+  } catch (error) {
+    console.error('Error extracting Word text:', error);
+    return '';
+  }
+}
+
+async function extractText(buffer: Uint8Array, fileType: string): Promise<string> {
+  console.log(`Extracting text from ${fileType}`);
+  
+  let extractedText = '';
+  
+  if (fileType === 'application/pdf' || fileType.includes('pdf')) {
+    extractedText = await extractTextFromPDF(buffer);
+  } else if (fileType === 'application/msword' || 
+             fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+             fileType.includes('word')) {
+    extractedText = await extractTextFromWord(buffer);
+  } else if (fileType.startsWith('text/')) {
+    // Plain text files
+    extractedText = new TextDecoder('utf-8').decode(buffer);
+  }
+  
+  console.log(`Extracted ${extractedText.length} characters`);
+  return extractedText;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -39,10 +106,12 @@ serve(async (req) => {
       );
     }
 
-    // Convert file to base64 for processing
+    console.log(`Processing file: ${file.name} (${file.type}) in mode: ${mode}`);
+
+    // Extract text from the document
     const arrayBuffer = await file.arrayBuffer();
-    const fileContent = new Uint8Array(arrayBuffer);
-    const base64Content = btoa(String.fromCharCode.apply(null, Array.from(fileContent)));
+    const fileBuffer = new Uint8Array(arrayBuffer);
+    const extractedText = await extractText(fileBuffer, file.type);
     
     // Define different prompts based on mode
     let systemPrompt = '';
@@ -96,9 +165,16 @@ Exemplo: "culpa exclusiva da vítima, excludente de responsabilidade, ausência 
         analysisPrompt = 'Analise este documento e extraia os principais termos jurídicos para pesquisa.';
     }
 
-    // For this example, we'll work with text content extraction
-    // In a real implementation, you'd use a PDF parser or OCR for proper document analysis
-    console.log(`Analyzing ${file.name} (${file.type}) in mode: ${mode}`);
+    // Prepare the content for OpenAI
+    let contentToAnalyze = `Nome do arquivo: ${file.name}\nTipo: ${file.type}`;
+    
+    if (extractedText && extractedText.length > 10) {
+      contentToAnalyze += `\n\nTexto extraído do documento:\n${extractedText}`;
+      console.log(`Using extracted text (${extractedText.length} chars) for analysis`);
+    } else {
+      contentToAnalyze += '\n\nNão foi possível extrair texto do documento. Baseie a análise no nome e tipo do arquivo.';
+      console.log('No text extracted, using filename analysis');
+    }
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -115,7 +191,7 @@ Exemplo: "culpa exclusiva da vítima, excludente de responsabilidade, ausência 
           },
           {
             role: 'user',
-            content: `${analysisPrompt}\n\nNome do arquivo: ${file.name}\nTipo: ${file.type}\n\nPor favor, analise o contexto baseado no nome e tipo do arquivo e forneça termos jurídicos relevantes para pesquisa de jurisprudências. Evite usar caracteres especiais.`
+            content: `${analysisPrompt}\n\n${contentToAnalyze}`
           }
         ],
         max_tokens: 500,
@@ -134,13 +210,14 @@ Exemplo: "culpa exclusiva da vítima, excludente de responsabilidade, ausência 
     // Sanitize extracted terms to remove regex special characters
     extractedTerms = extractedTerms.replace(/[*+?^${}()|[\]\\]/g, '');
     
-    console.log(`Extracted terms: ${extractedTerms}`);
+    console.log(`Analysis complete. Extracted terms: ${extractedTerms}`);
     
     return new Response(
       JSON.stringify({ 
         extractedTerms,
         fileName: file.name,
-        mode 
+        mode,
+        hasExtractedText: extractedText.length > 10
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
