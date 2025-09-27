@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const PesquisaRaioX = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -98,11 +99,34 @@ const PesquisaRaioX = () => {
     if (!file) return;
     
     setIsAnalyzing(true);
-    // Simular análise
-    setTimeout(() => {
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('mode', 'raiox');
+      
+      const { data, error } = await supabase.functions.invoke('analyze-document', {
+        body: formData
+      });
+      
+      if (error) throw error;
+      
+      // Para o Raio-X, mostrar análise mockada com os termos extraídos
+      const analysisWithTerms = {
+        ...mockAnalysis,
+        extractedTerms: data.extractedTerms,
+        fileName: file.name
+      };
+      
+      setAnalysisResult(analysisWithTerms);
+      
+    } catch (error) {
+      console.error('Erro na análise:', error);
+      alert('Erro ao analisar o documento. Tente novamente.');
       setIsAnalyzing(false);
-      setAnalysisResult(mockAnalysis);
-    }, 4000);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const removeFile = () => {

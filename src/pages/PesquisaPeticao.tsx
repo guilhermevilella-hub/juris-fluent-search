@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const PesquisaPeticao = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -60,12 +61,28 @@ const PesquisaPeticao = () => {
     if (!file) return;
     
     setIsAnalyzing(true);
-    // Simular análise
-    setTimeout(() => {
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('mode', 'peticao');
+      
+      const { data, error } = await supabase.functions.invoke('analyze-document', {
+        body: formData
+      });
+      
+      if (error) throw error;
+      
+      // Redirecionar para resultados com os termos extraídos pela IA
+      const searchTerms = data.extractedTerms || file.name;
+      navigate(`/busca?q=${encodeURIComponent(searchTerms)}&mode=peticao`);
+      
+    } catch (error) {
+      console.error('Erro na análise:', error);
+      alert('Erro ao analisar o documento. Tente novamente.');
+    } finally {
       setIsAnalyzing(false);
-      // Redirecionar para resultados
-      navigate(`/busca?q=${encodeURIComponent(file.name)}&mode=peticao`);
-    }, 3000);
+    }
   };
 
   const removeFile = () => {
