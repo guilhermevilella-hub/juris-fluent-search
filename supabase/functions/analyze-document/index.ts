@@ -1,55 +1,95 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import mammoth from "https://esm.sh/mammoth@1.6.0";
+import * as pdfjsLib from "https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Simple text extraction for PDFs (basic approach)
+// PDF text extraction using pdfjs-dist with worker disabled + robust fallback
 async function extractTextFromPDF(buffer: Uint8Array): Promise<string> {
   try {
-    // Convert buffer to string and try to extract readable text
-    const text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
-    
-    // Basic PDF text extraction - look for text between parentheses and common patterns
-    const textMatches = text.match(/\((.*?)\)/g);
-    if (textMatches) {
-      return textMatches
-        .map(match => match.replace(/[()]/g, ''))
-        .filter(text => text.length > 2 && /[a-zA-ZÀ-ÿ]/.test(text))
-        .join(' ')
-        .substring(0, 5000); // Limit to first 5000 chars
+    // Disable worker in server/edge environments
+    // @ts-ignore
+    if ((pdfjsLib as any).GlobalWorkerOptions) {
+      // @ts-ignore
+      (pdfjsLib as any).GlobalWorkerOptions.workerSrc = undefined;
     }
-    
-    // Fallback: extract any readable text
-    const readableText = text.replace(/[^\x20-\x7E\u00C0-\u017F]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    
-    return readableText.substring(0, 5000);
-  } catch (error) {
-    console.error('Error extracting PDF text:', error);
-    return '';
+
+    const loadingTask = (pdfjsLib as any).getDocument({
+      data: buffer,
+      useWorkerFetch: false,
+      isEvalSupported: false,
+      disableRange: true,
+      disableFontFace: true,
+    });
+
+    const doc = await loadingTask.promise;
+    let text = '';
+
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = (content.items as any[])
+        .map((item: any) => (item?.str ?? ''))
+        .join(' ');
+      text += pageText + ' ';
+      if (text.length > 8000) break; // keep size reasonable
+    }
+
+    const cleaned = text.replace(/\s+/g, ' ').trim();
+    console.log(`pdfjs extracted ${cleaned.length} chars`);
+    return cleaned.substring(0, 8000);
+  } catch (err) {
+    console.error('pdfjs extraction failed, falling back:', err);
+    try {
+      // Fallback: naive text decoding with simple cleaning
+      const raw = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
+      const textMatches = raw.match(/\((.*?)\)/g);
+      if (textMatches) {
+        const joined = textMatches
+          .map((m) => m.replace(/[()]/g, ''))
+          .filter((t) => t.length > 2 && /[a-zA-ZÀ-ÿ]/.test(t))
+          .join(' ');
+        return joined.substring(0, 5000);
+      }
+      const readable = raw
+        .replace(/[^\x20-\x7E\u00C0-\u017F]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return readable.substring(0, 5000);
+    } catch (fallbackErr) {
+      console.error('Error extracting PDF text fallback:', fallbackErr);
+      return '';
+    }
   }
 }
 
-// Simple text extraction for Word documents (basic approach)
+// Word (DOCX) text extraction using mammoth + fallback
 async function extractTextFromWord(buffer: Uint8Array): Promise<string> {
   try {
-    // Convert buffer to string and extract readable text
-    const text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
-    
-    // Extract readable text by filtering out binary data
-    const readableText = text.replace(/[^\x20-\x7E\u00C0-\u017F]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .replace(/[^\w\s\u00C0-\u017F.,;:!?()"-]/g, '')
-      .trim();
-    
-    return readableText.substring(0, 5000);
+    // mammoth expects an ArrayBuffer
+    const { value } = await (mammoth as any).extractRawText({ arrayBuffer: buffer.buffer });
+    const cleaned = (value ?? '').replace(/\s+/g, ' ').trim();
+    console.log(`mammoth extracted ${cleaned.length} chars`);
+    return cleaned.substring(0, 8000);
   } catch (error) {
-    console.error('Error extracting Word text:', error);
-    return '';
+    console.error('Mammoth extraction failed, falling back:', error);
+    try {
+      // Fallback to naive decoding (helps a bit for legacy .doc)
+      const text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
+      const readableText = text
+        .replace(/[^\x20-\x7E\u00C0-\u017F]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .replace(/[^\w\s\u00C0-\u017F.,;:!?()"-]/g, '')
+        .trim();
+      return readableText.substring(0, 5000);
+    } catch (fallbackErr) {
+      console.error('Word fallback failed:', fallbackErr);
+      return '';
+    }
   }
 }
 
