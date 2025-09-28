@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import mammoth from "https://esm.sh/mammoth@1.6.0";
-import * as pdfjsLib from "https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs";
+import { getDocument } from "https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,7 +10,7 @@ const corsHeaders = {
 
 async function extractTextFromPDF(buffer: Uint8Array): Promise<string> {
   try {
-    const loadingTask = pdfjsLib.getDocument({ data: buffer });
+    const loadingTask = getDocument({ data: buffer });
     const doc = await loadingTask.promise;
     let text = '';
     const maxPages = Math.min(doc.numPages, 10); // Limita o processamento a 10 páginas para evitar timeouts
