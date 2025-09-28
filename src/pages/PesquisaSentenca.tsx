@@ -167,7 +167,9 @@ const PesquisaSentenca = () => {
                   <div className="flex-1">
                     <h3 className="font-semibold">{file.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                      {file.size < 1024 * 1024
+                        ? `${(file.size / 1024).toFixed(2)} KB`
+                        : `${(file.size / 1024 / 1024).toFixed(2)} MB`}
                     </p>
                   </div>
                   <Button variant="ghost" onClick={removeFile}>
