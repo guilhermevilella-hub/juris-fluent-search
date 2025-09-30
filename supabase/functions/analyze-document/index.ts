@@ -1,58 +1,38 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import mammoth from "https://esm.sh/mammoth@1.6.0";
-import { getDocument } from "https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-async function extractTextFromPDF(buffer: Uint8Array): Promise<string> {
+async function extractText(file: File): Promise<string> {
   try {
-    const loadingTask = getDocument({ data: buffer });
-    const doc = await loadingTask.promise;
-    let text = '';
-    const maxPages = Math.min(doc.numPages, 10); // Limita o processamento a 10 páginas para evitar timeouts
-    for (let i = 1; i <= maxPages; i++) {
-      const page = await doc.getPage(i);
-      const content = await page.getTextContent();
-      const pageText = content.items.map((item: any) => (item?.str ?? '')).join(' ');
-      text += pageText + ' ';
-      if (text.length > 8000) break;
-    }
-    const cleaned = text.replace(/\s+/g, ' ').trim();
-    console.log(`pdfjs extracted ${cleaned.length} chars`);
-    return cleaned.substring(0, 8000);
-  } catch (err) {
-    console.error('pdfjs extraction failed:', err);
-    return '';
-  }
-}
+    console.log(`Extracting text from ${file.type} using webhook`);
+    
+    const webhookFormData = new FormData();
+    webhookFormData.append('file', file);
 
-async function extractTextFromWord(buffer: Uint8Array): Promise<string> {
-  try {
-    const arrayBuffer = new ArrayBuffer(buffer.byteLength);
-    new Uint8Array(arrayBuffer).set(buffer);
-    const { value } = await mammoth.extractRawText({ arrayBuffer });
-    const cleaned = (value ?? '').replace(/\s+/g, ' ').trim();
-    console.log(`mammoth extracted ${cleaned.length} chars`);
+    const webhookResponse = await fetch('https://autowebhook.nexusdevhub.com/webhook/extract', {
+      method: 'POST',
+      body: webhookFormData,
+    });
+
+    if (!webhookResponse.ok) {
+      console.error('Webhook extraction failed:', webhookResponse.status, webhookResponse.statusText);
+      return '';
+    }
+
+    const webhookData = await webhookResponse.json();
+    const extractedText = webhookData.text || webhookData.content || '';
+    
+    const cleaned = extractedText.replace(/\s+/g, ' ').trim();
+    console.log(`Webhook extracted ${cleaned.length} chars`);
     return cleaned.substring(0, 8000);
   } catch (error) {
-    console.error('Mammoth extraction failed:', error);
+    console.error('Webhook extraction error:', error);
     return '';
   }
-}
-
-async function extractText(buffer: Uint8Array, fileType: string): Promise<string> {
-  console.log(`Extracting text from ${fileType}`);
-  if (fileType.includes('pdf')) {
-    return extractTextFromPDF(buffer);
-  }
-  if (fileType.includes('word')) {
-    return extractTextFromWord(buffer);
-  }
-  return '';
 }
 
 serve(async (req) => {
@@ -90,9 +70,7 @@ serve(async (req) => {
 
     console.log(`Processing file: ${file.name} (${file.type}) in mode: ${mode}`);
 
-    const arrayBuffer = await file.arrayBuffer();
-    const fileBuffer = new Uint8Array(arrayBuffer);
-    const extractedText = await extractText(fileBuffer, file.type);
+    const extractedText = await extractText(file);
 
     if (!extractedText || extractedText.length < 50) {
         console.warn('Extracted text is too short or empty. Returning a fallback search query.');
