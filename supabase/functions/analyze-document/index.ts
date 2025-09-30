@@ -10,8 +10,12 @@ async function extractText(file: File): Promise<string> {
   try {
     console.log(`Extracting text from ${file.type} using webhook`);
     
+    // Convert file to binary blob
+    const arrayBuffer = await file.arrayBuffer();
+    const blob = new Blob([arrayBuffer], { type: file.type });
+    
     const webhookFormData = new FormData();
-    webhookFormData.append('file', file);
+    webhookFormData.append('file', blob, file.name);
 
     const webhookResponse = await fetch('https://autowebhook.nexusdevhub.com/webhook/extract', {
       method: 'POST',
