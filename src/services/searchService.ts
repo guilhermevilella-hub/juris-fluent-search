@@ -105,6 +105,7 @@ export interface SearchResponse {
 export async function searchEscavador(query: string, filters: any, useOnlySynonyms: boolean = false): Promise<SearchResponse> {
   try {
     console.log('Searching with query:', query, 'and filters:', filters);
+    console.log('Mode: useOnlySynonyms =', useOnlySynonyms);
     
     const { escavadorKey } = await getApiCredentials();
 
@@ -118,8 +119,10 @@ export async function searchEscavador(query: string, filters: any, useOnlySynony
       // If useOnlySynonyms is true (contexto mode), use only synonyms
       if (useOnlySynonyms) {
         searchQuery = synonyms.join(' OR ');
+        console.log('Using ONLY synonyms for search (contexto mode):', searchQuery);
       } else {
         searchQuery = `${query} OR ${synonyms.join(' OR ')}`;
+        console.log('Using query + synonyms:', searchQuery);
       }
     }
 
