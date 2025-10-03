@@ -88,10 +88,13 @@ const SearchResults = () => {
       // Se estamos em modo contexto e sinônimos foram usados, atualizar a URL
       if (useOnlySynonyms && data.synonymsUsed && data.synonymsUsed.length > 0) {
         const synonymsQuery = data.synonymsUsed.join(' OR ');
-        const newParams = new URLSearchParams(searchParams);
-        newParams.set('q', synonymsQuery);
-        setSearchParams(newParams, { replace: true });
-        setSearchQuery(synonymsQuery);
+        const currentQ = searchParams.get('q') || '';
+        if (currentQ !== synonymsQuery) {
+          const newParams = new URLSearchParams(searchParams);
+          newParams.set('q', synonymsQuery);
+          setSearchParams(newParams, { replace: true });
+          setSearchQuery(synonymsQuery);
+        }
       }
       
       // Salvar resultados no sessionStorage para uso posterior
