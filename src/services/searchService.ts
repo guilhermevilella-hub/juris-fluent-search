@@ -102,7 +102,7 @@ export interface SearchResponse {
   filters: DynamicFilter[];
 }
 
-export async function searchEscavador(query: string, filters: any): Promise<SearchResponse> {
+export async function searchEscavador(query: string, filters: any, useOnlySynonyms: boolean = false): Promise<SearchResponse> {
   try {
     console.log('Searching with query:', query, 'and filters:', filters);
     
@@ -115,7 +115,12 @@ export async function searchEscavador(query: string, filters: any): Promise<Sear
     // 2. Build search query with synonyms
     let searchQuery = query;
     if (synonyms.length > 0) {
-      searchQuery = `${query} OR ${synonyms.join(' OR ')}`;
+      // If useOnlySynonyms is true (contexto mode), use only synonyms
+      if (useOnlySynonyms) {
+        searchQuery = synonyms.join(' OR ');
+      } else {
+        searchQuery = `${query} OR ${synonyms.join(' OR ')}`;
+      }
     }
 
     // 3. Build URL parameters

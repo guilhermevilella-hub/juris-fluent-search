@@ -69,20 +69,21 @@ const SearchResults = () => {
   useEffect(() => {
     const query = searchParams.get('q');
     const tribunal = searchParams.get('tribunal');
+    const mode = searchParams.get('mode');
     
     if (query) {
       setSearchQuery(query);
-      performSearch(query, { tribunal: tribunal || undefined });
+      performSearch(query, { tribunal: tribunal || undefined }, mode === 'contexto');
     }
   }, [searchParams]);
 
-  const performSearch = async (query: string, searchFilters: SearchFilters = {}) => {
+  const performSearch = async (query: string, searchFilters: SearchFilters = {}, useOnlySynonyms: boolean = false) => {
     setIsLoading(true);
     const startTime = Date.now();
 
     try {
       // Chame a nova função que já inclui a geração de sinônimos e a chamada à API do Escavador
-      const data = await searchEscavador(query, searchFilters);
+      const data = await searchEscavador(query, searchFilters, useOnlySynonyms);
       
       // Salvar resultados no sessionStorage para uso posterior
       sessionStorage.setItem('searchResults', JSON.stringify(data.results));
@@ -129,7 +130,8 @@ const SearchResults = () => {
 
   const handleFiltersChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
-    performSearch(searchQuery, newFilters);
+    const mode = searchParams.get('mode');
+    performSearch(searchQuery, newFilters, mode === 'contexto');
   };
 
   return (
