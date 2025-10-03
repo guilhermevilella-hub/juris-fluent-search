@@ -100,6 +100,7 @@ export interface DynamicFilter {
 export interface SearchResponse {
   results: any[];
   filters: DynamicFilter[];
+  synonymsUsed?: string[];
 }
 
 export async function searchEscavador(query: string, filters: any, useOnlySynonyms: boolean = false): Promise<SearchResponse> {
@@ -161,7 +162,8 @@ export async function searchEscavador(query: string, filters: any, useOnlySynony
             item.ementa.toLowerCase().includes(query.toLowerCase()) ||
             item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
           ),
-          filters: []
+          filters: [],
+          synonymsUsed: useOnlySynonyms && synonyms.length > 0 ? synonyms : undefined
         };
       }
       throw new Error(`Erro da API do Escavador: ${response.status} ${response.statusText}`);
@@ -173,7 +175,8 @@ export async function searchEscavador(query: string, filters: any, useOnlySynony
       console.warn('No items returned from Escavador API, using mock data');
       return {
         results: mockJurisprudencias,
-        filters: []
+        filters: [],
+        synonymsUsed: useOnlySynonyms && synonyms.length > 0 ? synonyms : undefined
       };
     }
 
@@ -197,7 +200,8 @@ export async function searchEscavador(query: string, filters: any, useOnlySynony
     console.log('Search completed, found', mappedResults.length, 'results and', dynamicFilters.length, 'filters');
     return {
       results: mappedResults,
-      filters: dynamicFilters
+      filters: dynamicFilters,
+      synonymsUsed: useOnlySynonyms && synonyms.length > 0 ? synonyms : undefined
     };
   } catch (error) {
     console.error("Erro na busca do Escavador:", error);
@@ -209,7 +213,8 @@ export async function searchEscavador(query: string, filters: any, useOnlySynony
         item.ementa.toLowerCase().includes(query.toLowerCase()) ||
         item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
       ),
-      filters: []
+      filters: [],
+      synonymsUsed: undefined
     };
   }
 }

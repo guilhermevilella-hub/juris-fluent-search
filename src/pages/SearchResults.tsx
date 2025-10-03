@@ -85,6 +85,15 @@ const SearchResults = () => {
       // Chame a nova função que já inclui a geração de sinônimos e a chamada à API do Escavador
       const data = await searchEscavador(query, searchFilters, useOnlySynonyms);
       
+      // Se estamos em modo contexto e sinônimos foram usados, atualizar a URL
+      if (useOnlySynonyms && data.synonymsUsed && data.synonymsUsed.length > 0) {
+        const synonymsQuery = data.synonymsUsed.join(' OR ');
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('q', synonymsQuery);
+        setSearchParams(newParams, { replace: true });
+        setSearchQuery(synonymsQuery);
+      }
+      
       // Salvar resultados no sessionStorage para uso posterior
       sessionStorage.setItem('searchResults', JSON.stringify(data.results));
       
