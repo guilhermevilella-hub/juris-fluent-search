@@ -34,8 +34,8 @@ const SearchResults = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [filters, setFilters] = useState<SearchFilters>({});
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState(MOCK_RESULTS);
+  const [isLoading, setIsLoading] = useState(true);
+  const [results, setResults] = useState<any[]>([]);
   const [searchTime, setSearchTime] = useState(0);
   const [dynamicFilters, setDynamicFilters] = useState<DynamicFilter[]>([]);
   
@@ -48,21 +48,21 @@ const SearchResults = () => {
     const mode = searchParams.get('mode');
     
     if (query) {
-      // Atualiza o campo de busca com o que está na URL (o texto original do usuário)
+      // Apenas atualiza o estado do campo de busca
       setSearchQuery(query);
-      // Executa a busca
+      // E executa a busca
       performSearch(query, { tribunal: tribunal || undefined }, mode === 'contexto');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.get('q'), searchParams.get('tribunal'), searchParams.get('mode')]);
+  }, [searchParams.toString()]); // Depende da string completa de parâmetros para re-buscar com filtros
 
   // Função que executa a busca
   const performSearch = async (query: string, searchFilters: SearchFilters = {}, useOnlySynonyms: boolean = false) => {
     setIsLoading(true);
     const startTime = Date.now();
     try {
-      // A função `searchEscavador` vai usar os sinônimos internamente para a chamada da API,
-      // mas não precisamos mais receber os sinônimos de volta aqui.
+      // A função `searchEscavador` usará os sinônimos internamente mas não precisamos mais
+      // fazer nada com o retorno `synonymsUsed`. A URL não será mais alterada.
       const data = await searchEscavador(query, searchFilters, useOnlySynonyms);
       
       sessionStorage.setItem('searchResults', JSON.stringify(data.results));
@@ -79,14 +79,7 @@ const SearchResults = () => {
         variant: "destructive",
       });
       
-      // Fallback para dados mock
-      let filteredResults = [...MOCK_RESULTS];
-      if (searchFilters.tribunal) {
-        filteredResults = filteredResults.filter(result => 
-          result.tribunal.toLowerCase().includes(searchFilters.tribunal!.toLowerCase())
-        );
-      }
-      setResults(filteredResults);
+      setResults([]); // Limpa resultados em caso de erro
     } finally {
       const endTime = Date.now();
       setSearchTime((endTime - startTime) / 1000);
@@ -219,17 +212,6 @@ const SearchResults = () => {
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <JurisprudenceCard {...result} searchQuery={searchQuery} />
-                    {/* Progress feedback every 5 results */}
-                    {(index + 1) % 5 === 0 && index < results.length - 1 && (
-                      <div className="text-center py-4 my-6 border-y border-border/50 bg-muted/20 rounded-lg">
-                        <p className="text-sm text-muted-foreground">
-                          Você já viu <span className="font-semibold text-foreground">{index + 1}</span> jurisprudências relevantes.
-                          {results.length - index - 1 > 0 && (
-                            <span> Continue, mais <span className="font-semibold text-primary">{Math.min(3, results.length - index - 1)}</span> podem surpreender você.</span>
-                          )}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 ))}
                 
@@ -263,21 +245,21 @@ const SearchResults = () => {
                       <Badge 
                         variant="outline" 
                         className="cursor-pointer hover:bg-accent"
-                        onClick={() => setSearchQuery("direito civil")}
+                        onClick={() => setSearchParams({ q: "direito civil" })}
                       >
                         direito civil
                       </Badge>
                       <Badge 
                         variant="outline" 
                         className="cursor-pointer hover:bg-accent"
-                        onClick={() => setSearchQuery("responsabilidade")}
+                        onClick={() => setSearchParams({ q: "responsabilidade" })}
                       >
                         responsabilidade
                       </Badge>
                       <Badge 
                         variant="outline" 
                         className="cursor-pointer hover:bg-accent"
-                        onClick={() => setSearchQuery("contrato")}
+                        onClick={() => setSearchParams({ q: "contrato" })}
                       >
                         contrato
                       </Badge>
