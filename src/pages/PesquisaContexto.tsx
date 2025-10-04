@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { generateSynonyms } from "@/services/searchService"; // Importe a função
+import { generateAdvancedSearchQuery } from "@/services/searchService";
+import { toast } from "@/components/ui/use-toast";
 
 const PesquisaContexto = () => {
   const [contexto, setContexto] = useState("");
@@ -12,26 +13,33 @@ const PesquisaContexto = () => {
   const navigate = useNavigate();
 
   const handleAnalyze = async () => {
-    if (!contexto.trim()) return;
+    if (!contexto.trim()) {
+      toast({
+        title: "Campo vazio",
+        description: "Por favor, descreva o contexto do caso",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsAnalyzing(true);
     try {
-      // 1. Gera os sinônimos a partir do texto de contexto
-      const synonyms = await generateSynonyms(contexto.trim());
+      // Gera query booleana avançada usando IA
+      const advancedQuery = await generateAdvancedSearchQuery(contexto.trim());
+      console.log('Query booleana gerada:', advancedQuery);
       
-      let searchTerms = contexto.trim();
-      if (synonyms.length > 0) {
-        // 2. Cria a string de busca final com os sinônimos
-        searchTerms = synonyms.join(' OR ');
-      }
-      
-      // 3. Navega para a página de busca com os termos prontos, sem o "mode=contexto"
-      navigate(`/busca?q=${encodeURIComponent(searchTerms)}`);
+      // Navega para a página de busca com a query otimizada e modo contexto
+      navigate(`/busca?q=${encodeURIComponent(advancedQuery)}&mode=contexto`);
 
     } catch (error) {
-      console.error("Erro ao gerar sinônimos na pesquisa por contexto:", error);
+      console.error("Erro ao gerar query avançada:", error);
+      toast({
+        title: "Erro ao processar",
+        description: "Não foi possível gerar a query otimizada. Usando busca simples.",
+        variant: "destructive"
+      });
       // Em caso de erro, busca pelo texto original
-      navigate(`/busca?q=${encodeURIComponent(contexto.trim())}`);
+      navigate(`/busca?q=${encodeURIComponent(contexto.trim())}&mode=contexto`);
     } finally {
       setIsAnalyzing(false);
     }

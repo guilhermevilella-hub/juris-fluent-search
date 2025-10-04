@@ -57,13 +57,12 @@ const SearchResults = () => {
   }, [searchParams.toString()]); // Depende da string completa de parâmetros para re-buscar com filtros
 
   // Função que executa a busca
-  const performSearch = async (query: string, searchFilters: SearchFilters = {}, useOnlySynonyms: boolean = false) => {
+  const performSearch = async (query: string, searchFilters: SearchFilters = {}, useAdvancedQuery: boolean = false) => {
     setIsLoading(true);
     const startTime = Date.now();
     try {
-      // A função `searchEscavador` usará os sinônimos internamente mas não precisamos mais
-      // fazer nada com o retorno `synonymsUsed`. A URL não será mais alterada.
-      const data = await searchEscavador(query, searchFilters, useOnlySynonyms);
+      // Se useAdvancedQuery for true, a query já vem otimizada pelo AI
+      const data = await searchEscavador(query, searchFilters, useAdvancedQuery);
       
       sessionStorage.setItem('searchResults', JSON.stringify(data.results));
       
