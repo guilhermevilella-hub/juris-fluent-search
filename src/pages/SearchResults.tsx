@@ -70,12 +70,23 @@ const SearchResults = () => {
     const query = searchParams.get('q');
     const tribunal = searchParams.get('tribunal');
     const mode = searchParams.get('mode');
-    
+
     if (query) {
-      setSearchQuery(query);
-      performSearch(query, { tribunal: tribunal || undefined }, mode === 'contexto');
+        setSearchQuery(query);
+        const executeSearch = async () => {
+            const data = await performSearch(query, { tribunal: tribunal || undefined }, mode === 'contexto');
+
+            if (mode === 'contexto' && data?.synonymsUsed?.length && query !== data.synonymsUsed.join(' OR ')) {
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('q', data.synonymsUsed.join(' OR '));
+                setSearchParams(newParams, { replace: true });
+            }
+        };
+
+        executeSearch();
     }
-  }, [searchParams]);
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [searchParams.get('q'), searchParams.get('tribunal'), searchParams.get('mode')]);
 
   const performSearch = async (query: string, searchFilters: SearchFilters = {}, useOnlySynonyms: boolean = false) => {
     setIsLoading(true);
@@ -102,6 +113,7 @@ const SearchResults = () => {
       
       setResults(data.results);
       setDynamicFilters(data.filters);
+      return data; // Retorna os dados para o useEffect
     } catch (error) {
       console.error('Erro na busca:', error);
       
@@ -136,14 +148,22 @@ const SearchResults = () => {
       const newParams = new URLSearchParams(searchParams);
       newParams.set('q', searchQuery.trim());
       setSearchParams(newParams);
-      performSearch(searchQuery.trim(), filters);
+      // A busca será acionada pelo useEffect
     }
   };
 
   const handleFiltersChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
-    const mode = searchParams.get('mode');
-    performSearch(searchQuery, newFilters, mode === 'contexto');
+    const newParams = new URLSearchParams(searchParams);
+    Object.entries(newFilters).forEach(([key, value]) => {
+        if (value) {
+            newParams.set(key, value);
+        } else {
+            newParams.delete(key);
+        }
+    });
+    setSearchParams(newParams);
+     // A busca será acionada pelo useEffect
   };
 
   return (
