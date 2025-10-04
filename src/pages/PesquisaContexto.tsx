@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { generateAdvancedSearchQuery } from "@/services/searchService";
-import { toast } from "@/components/ui/use-toast";
+import { generateSynonyms } from "@/services/searchService"; // Importe a função
 
 const PesquisaContexto = () => {
   const [contexto, setContexto] = useState("");
@@ -13,33 +12,26 @@ const PesquisaContexto = () => {
   const navigate = useNavigate();
 
   const handleAnalyze = async () => {
-    if (!contexto.trim()) {
-      toast({
-        title: "Campo vazio",
-        description: "Por favor, descreva o contexto do caso",
-        variant: "destructive"
-      });
-      return;
-    }
+    if (!contexto.trim()) return;
     
     setIsAnalyzing(true);
     try {
-      // Gera query booleana avançada usando IA
-      const advancedQuery = await generateAdvancedSearchQuery(contexto.trim());
-      console.log('Query booleana gerada:', advancedQuery);
+      // 1. Gera os sinônimos a partir do texto de contexto
+      const synonyms = await generateSynonyms(contexto.trim());
       
-      // Navega para a página de busca com a query otimizada e modo contexto
-      navigate(`/busca?q=${encodeURIComponent(advancedQuery)}&mode=contexto`);
+      let searchTerms = contexto.trim();
+      if (synonyms.length > 0) {
+        // 2. Cria a string de busca final com os sinônimos
+        searchTerms = synonyms.join(' OR ');
+      }
+      
+      // 3. Navega para a página de busca com os termos prontos, sem o "mode=contexto"
+      navigate(`/busca?q=${encodeURIComponent(searchTerms)}`);
 
     } catch (error) {
-      console.error("Erro ao gerar query avançada:", error);
-      toast({
-        title: "Erro ao processar",
-        description: "Não foi possível gerar a query otimizada. Usando busca simples.",
-        variant: "destructive"
-      });
+      console.error("Erro ao gerar sinônimos na pesquisa por contexto:", error);
       // Em caso de erro, busca pelo texto original
-      navigate(`/busca?q=${encodeURIComponent(contexto.trim())}&mode=contexto`);
+      navigate(`/busca?q=${encodeURIComponent(contexto.trim())}`);
     } finally {
       setIsAnalyzing(false);
     }

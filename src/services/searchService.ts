@@ -24,37 +24,63 @@ function sanitizeSearchTerm(term: string): string {
   return term.replace(/[*+?^${}()|[\]\\]/g, '\\$&').trim();
 }
 
-// Generate advanced boolean search query using AI
-export async function generateAdvancedSearchQuery(userInput: string): Promise<string> {
+export async function generateSynonyms(query: string): Promise<string[]> {
   try {
-    console.log('Generating advanced search query for:', userInput);
+    console.log('Generating synonyms for:', query);
     
-    const { supabase } = await import('@/integrations/supabase/client');
+    // Use mock data first
+    const mockResult = mockSynonyms[query.toLowerCase()];
+    if (mockResult) {
+      console.log('Using mock synonyms:', mockResult);
+      return mockResult.map(sanitizeSearchTerm);
+    }
     
-    const { data, error } = await supabase.functions.invoke('generate-search-query', {
-      body: { userInput }
-    });
-
-    if (error) {
-      console.error('Error calling generate-search-query function:', error);
-      // Fallback to simple query
-      return userInput;
+    const { openaiKey } = await getApiCredentials();
+    if (!openaiKey) {
+      console.warn('OpenAI API key not found, skipping synonyms generation');
+      return [];
     }
 
-    const searchQuery = data?.searchQuery || userInput;
-    console.log('Generated advanced query:', searchQuery);
-    return searchQuery;
-  } catch (error) {
-    console.error('Error generating advanced search query:', error);
-    // Fallback to simple query
-    return userInput;
-  }
-}
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'Você é um especialista em pesquisa jurídica. Gere até 5 sinônimos ou termos relacionados para expandir a busca jurídica. Responda apenas com uma lista de palavras separadas por vírgula, sem explicações. Evite usar caracteres especiais como asteriscos ou colchetes.'
+          },
+          {
+            role: 'user',
+            content: `Gere sinônimos jurídicos para: ${query}`
+          }
+        ],
+        max_tokens: 100,
+        temperature: 0.3
+      }),
+    });
 
-// Legacy function for backwards compatibility (now just returns the input)
-export async function generateSynonyms(query: string): Promise<string[]> {
-  console.warn('generateSynonyms is deprecated, use generateAdvancedSearchQuery instead');
-  return [];
+    if (!response.ok) {
+      console.error('OpenAI API error:', response.statusText);
+      return mockResult?.map(sanitizeSearchTerm) || [];
+    }
+
+    const data = await response.json();
+    const synonymsText = data.choices[0]?.message?.content || '';
+    const synonyms = synonymsText.split(',')
+      .map((s: string) => sanitizeSearchTerm(s))
+      .filter((s: string) => s.length > 0);
+    
+    console.log('Generated synonyms:', synonyms);
+    return synonyms;
+  } catch (error) {
+    console.error('Error generating synonyms:', error);
+    return mockSynonyms[query.toLowerCase()]?.map(sanitizeSearchTerm) || [];
+  }
 }
 
 export interface FilterOption {
@@ -77,17 +103,28 @@ export interface SearchResponse {
   synonymsUsed?: string[];
 }
 
-export async function searchEscavador(query: string, filters: any, useAdvancedQuery: boolean = false): Promise<SearchResponse> {
+export async function searchEscavador(query: string, filters: any, useOnlySynonyms: boolean = false): Promise<SearchResponse> {
   try {
     console.log('Searching with query:', query, 'and filters:', filters);
-    console.log('Mode: useAdvancedQuery =', useAdvancedQuery);
+    console.log('Mode: useOnlySynonyms =', useOnlySynonyms);
     
     const { escavadorKey } = await getApiCredentials();
 
-    // Build search query - if useAdvancedQuery is true, use the query as-is (already optimized by AI)
+    // 1. Generate synonyms with AI
+    const synonyms = await generateSynonyms(query);
+    console.log('Generated synonyms:', synonyms);
+
+    // 2. Build search query with synonyms
     let searchQuery = query;
-    if (useAdvancedQuery) {
-      console.log('Using AI-generated advanced query:', searchQuery);
+    if (synonyms.length > 0) {
+      // If useOnlySynonyms is true (contexto mode), use only synonyms
+      if (useOnlySynonyms) {
+        searchQuery = synonyms.join(' OR ');
+        console.log('Using ONLY synonyms for search (contexto mode):', searchQuery);
+      } else {
+        searchQuery = `${query} OR ${synonyms.join(' OR ')}`;
+        console.log('Using query + synonyms:', searchQuery);
+      }
     }
 
     // 3. Build URL parameters
@@ -126,7 +163,7 @@ export async function searchEscavador(query: string, filters: any, useAdvancedQu
             item.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
           ),
           filters: [],
-          synonymsUsed: undefined
+          synonymsUsed: useOnlySynonyms && synonyms.length > 0 ? synonyms : undefined
         };
       }
       throw new Error(`Erro da API do Escavador: ${response.status} ${response.statusText}`);
@@ -139,7 +176,7 @@ export async function searchEscavador(query: string, filters: any, useAdvancedQu
       return {
         results: mockJurisprudencias,
         filters: [],
-        synonymsUsed: undefined
+        synonymsUsed: useOnlySynonyms && synonyms.length > 0 ? synonyms : undefined
       };
     }
 
@@ -164,7 +201,7 @@ export async function searchEscavador(query: string, filters: any, useAdvancedQu
     return {
       results: mappedResults,
       filters: dynamicFilters,
-      synonymsUsed: undefined
+      synonymsUsed: useOnlySynonyms && synonyms.length > 0 ? synonyms : undefined
     };
   } catch (error) {
     console.error("Erro na busca do Escavador:", error);
