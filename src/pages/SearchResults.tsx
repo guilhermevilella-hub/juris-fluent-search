@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Search, Filter, SlidersHorizontal, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ButtonIjus } from "@/components/ui/button-ijus";
@@ -16,7 +16,7 @@ const MOCK_RESULTS = [
   {
     id: "1",
     titulo: "Responsabilidade civil por danos morais em relações de consumo",
-    ementa: "O fornecedor de produtos ou serviços responde objetivamente pelos danos causados aos consumidores, independentemente de culpa, conforme art. 14 do CDC. A configuração do dano moral prescinde da demonstração de prejuízo econômico...",
+    ementa: "O fornecedor de produtos ou serviços responde objetivamente pelos danos causados aos consumidores...",
     tribunal: "STJ",
     orgao_julgador: "3ª Turma",
     relator: "Min. Marco Aurélio Bellizze",
@@ -25,99 +25,53 @@ const MOCK_RESULTS = [
     tags: ["Direito do Consumidor", "Responsabilidade Civil", "Danos Morais"],
     score: 0.95
   },
-  {
-    id: "2",
-    titulo: "Configuração de união estável e direitos patrimoniais",
-    ementa: "Para configuração da união estável é necessário a convivência pública, contínua e duradoura estabelecida com o objetivo de constituição de família. Os direitos patrimoniais decorrentes da união estável se equiparam aos do casamento...",
-    tribunal: "STF",
-    orgao_julgador: "2ª Turma",
-    relator: "Min. Gilmar Mendes",
-    data_julgamento: "2024-01-10",
-    numero_processo: "RE 987.654/RJ",
-    tags: ["Direito de Família", "União Estável", "Direitos Patrimoniais"],
-    score: 0.87
-  },
-  {
-    id: "3",
-    titulo: "Aplicação da Lei Maria da Penha em casos de violência psicológica",
-    ementa: "A Lei Maria da Penha se aplica a todas as formas de violência doméstica e familiar contra a mulher, incluindo a violência psicológica. Não é necessária a coabitação para configurar a violência doméstica...",
-    tribunal: "TJ-SP",
-    orgao_julgador: "4ª Câmara Criminal",
-    relator: "Des. José Silva Santos",
-    data_julgamento: "2024-01-08",
-    numero_processo: "Apelação 5.432.109/SP",
-    tags: ["Direito Penal", "Lei Maria da Penha", "Violência Doméstica"],
-    score: 0.82
-  },
-  // Add more mock results...
+  // ... outros mocks
 ];
 
 const SearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [filters, setFilters] = useState<SearchFilters>({});
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(MOCK_RESULTS);
-  const [searchTime, setSearchTime] = useState(0.34);
+  const [searchTime, setSearchTime] = useState(0);
   const [dynamicFilters, setDynamicFilters] = useState<DynamicFilter[]>([]);
   
   const totalResults = results.length;
 
+  // Efeito que dispara a busca quando os parâmetros da URL mudam
   useEffect(() => {
     const query = searchParams.get('q');
     const tribunal = searchParams.get('tribunal');
     const mode = searchParams.get('mode');
-
+    
     if (query) {
-        setSearchQuery(query);
-        const executeSearch = async () => {
-            const data = await performSearch(query, { tribunal: tribunal || undefined }, mode === 'contexto');
-
-            if (mode === 'contexto' && data?.synonymsUsed?.length && query !== data.synonymsUsed.join(' OR ')) {
-                const newParams = new URLSearchParams(searchParams);
-                newParams.set('q', data.synonymsUsed.join(' OR '));
-                setSearchParams(newParams, { replace: true });
-            }
-        };
-
-        executeSearch();
+      // Atualiza o campo de busca com o que está na URL (o texto original do usuário)
+      setSearchQuery(query);
+      // Executa a busca
+      performSearch(query, { tribunal: tribunal || undefined }, mode === 'contexto');
     }
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [searchParams.get('q'), searchParams.get('tribunal'), searchParams.get('mode')]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('q'), searchParams.get('tribunal'), searchParams.get('mode')]);
 
+  // Função que executa a busca
   const performSearch = async (query: string, searchFilters: SearchFilters = {}, useOnlySynonyms: boolean = false) => {
     setIsLoading(true);
     const startTime = Date.now();
-
     try {
-      // Chame a nova função que já inclui a geração de sinônimos e a chamada à API do Escavador
+      // A função `searchEscavador` vai usar os sinônimos internamente para a chamada da API,
+      // mas não precisamos mais receber os sinônimos de volta aqui.
       const data = await searchEscavador(query, searchFilters, useOnlySynonyms);
       
-      // Se estamos em modo contexto e sinônimos foram usados, atualizar a URL
-      if (useOnlySynonyms && data.synonymsUsed && data.synonymsUsed.length > 0) {
-        const synonymsQuery = data.synonymsUsed.join(' OR ');
-        const currentQ = searchParams.get('q') || '';
-        if (currentQ !== synonymsQuery) {
-          const newParams = new URLSearchParams(searchParams);
-          newParams.set('q', synonymsQuery);
-          setSearchParams(newParams, { replace: true });
-          setSearchQuery(synonymsQuery);
-        }
-      }
-      
-      // Salvar resultados no sessionStorage para uso posterior
       sessionStorage.setItem('searchResults', JSON.stringify(data.results));
       
       setResults(data.results);
       setDynamicFilters(data.filters);
-      return data; // Retorna os dados para o useEffect
+
     } catch (error) {
       console.error('Erro na busca:', error);
-      
-      // Show error toast
       const { toast } = await import('@/components/ui/use-toast');
       toast({
         title: "Erro na busca",
@@ -125,15 +79,13 @@ const SearchResults = () => {
         variant: "destructive",
       });
       
-      // Fallback para dados mock em caso de erro
+      // Fallback para dados mock
       let filteredResults = [...MOCK_RESULTS];
-      
       if (searchFilters.tribunal) {
         filteredResults = filteredResults.filter(result => 
           result.tribunal.toLowerCase().includes(searchFilters.tribunal!.toLowerCase())
         );
       }
-      
       setResults(filteredResults);
     } finally {
       const endTime = Date.now();
@@ -142,16 +94,18 @@ const SearchResults = () => {
     }
   };
 
+  // Handler para o formulário de busca
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       const newParams = new URLSearchParams(searchParams);
       newParams.set('q', searchQuery.trim());
+      // A busca será acionada pela mudança na URL via useEffect
       setSearchParams(newParams);
-      // A busca será acionada pelo useEffect
     }
   };
 
+  // Handler para a mudança de filtros
   const handleFiltersChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
     const newParams = new URLSearchParams(searchParams);
@@ -162,8 +116,8 @@ const SearchResults = () => {
             newParams.delete(key);
         }
     });
+    // A busca será acionada pela mudança na URL via useEffect
     setSearchParams(newParams);
-     // A busca será acionada pelo useEffect
   };
 
   return (
@@ -193,9 +147,9 @@ const SearchResults = () => {
             >
               <SlidersHorizontal className="w-4 h-4" />
               <span className="hidden sm:inline">Filtros</span>
-              {Object.values(filters).filter(Boolean).length > 0 && (
+              {Object.keys(filters).filter(k => filters[k as keyof SearchFilters]).length > 0 && (
                 <Badge variant="secondary" className="ml-2">
-                  {Object.values(filters).filter(Boolean).length}
+                  {Object.keys(filters).filter(k => filters[k as keyof SearchFilters]).length}
                 </Badge>
               )}
             </Button>
@@ -226,7 +180,7 @@ const SearchResults = () => {
                 <div className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
                   <span>
-                    {totalResults} resultados em {searchTime}s
+                    {totalResults} resultados em {searchTime.toFixed(2)}s
                   </span>
                 </div>
                 {searchQuery && (
@@ -241,7 +195,7 @@ const SearchResults = () => {
             {isLoading && (
               <div className="space-y-6">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="card-jurisprudence">
+                  <div key={i} className="card-jurisprudence p-6 border rounded-xl">
                     <Skeleton className="h-4 w-3/4 mb-2" />
                     <Skeleton className="h-4 w-full mb-2" />
                     <Skeleton className="h-4 w-2/3 mb-4" />
