@@ -284,11 +284,39 @@ const DocumentDetail = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="prose prose-sm max-w-none">
-                    <p className="text-foreground leading-relaxed whitespace-pre-line">
-                      {typeof document.ementa === 'string' ? document.ementa : 
-                       typeof document.ementa === 'object' ? JSON.stringify(document.ementa, null, 2) : 
-                       'Ementa não disponível'}
-                    </p>
+                    <div className="text-foreground leading-relaxed space-y-4">
+                      {(() => {
+                        const ementaText = typeof document.ementa === 'string' ? document.ementa : 
+                                          typeof document.ementa === 'object' ? JSON.stringify(document.ementa, null, 2) : 
+                                          'Ementa não disponível';
+                        
+                        // Split by double line breaks or common section markers
+                        const sections = ementaText.split(/\n\n+|\. (?=[A-Z][A-Z])/);
+                        
+                        return sections.map((section, index) => {
+                          const trimmedSection = section.trim();
+                          if (!trimmedSection) return null;
+                          
+                          // Check if it's a section title (all caps or starts with common keywords)
+                          const isSectionTitle = /^(EMENTA|ACÓRDÃO|DECISÃO|VOTO|RELATÓRIO|FUNDAMENTAÇÃO)[:.\s]/i.test(trimmedSection) ||
+                                                (trimmedSection.length < 100 && trimmedSection === trimmedSection.toUpperCase());
+                          
+                          if (isSectionTitle) {
+                            return (
+                              <div key={index} className="font-semibold text-primary mt-6 first:mt-0">
+                                {trimmedSection}
+                              </div>
+                            );
+                          }
+                          
+                          return (
+                            <p key={index} className="text-foreground/90 text-justify">
+                              {trimmedSection}
+                            </p>
+                          );
+                        });
+                      })()}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
