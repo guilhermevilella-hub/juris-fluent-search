@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { generateSynonyms } from "@/services/searchService"; // Importe a função
 
 const PesquisaContexto = () => {
   const [contexto, setContexto] = useState("");
@@ -14,12 +15,26 @@ const PesquisaContexto = () => {
     if (!contexto.trim()) return;
     
     setIsAnalyzing(true);
-    // Simular análise
-    setTimeout(() => {
+    try {
+      // 1. Gera os sinônimos a partir do texto de contexto
+      const synonyms = await generateSynonyms(contexto.trim());
+      
+      let searchTerms = contexto.trim();
+      if (synonyms.length > 0) {
+        // 2. Cria a string de busca final com os sinônimos
+        searchTerms = synonyms.join(' OR ');
+      }
+      
+      // 3. Navega para a página de busca com os termos prontos, sem o "mode=contexto"
+      navigate(`/busca?q=${encodeURIComponent(searchTerms)}`);
+
+    } catch (error) {
+      console.error("Erro ao gerar sinônimos na pesquisa por contexto:", error);
+      // Em caso de erro, busca pelo texto original
+      navigate(`/busca?q=${encodeURIComponent(contexto.trim())}`);
+    } finally {
       setIsAnalyzing(false);
-      // Redirecionar para resultados com o contexto como query
-      navigate(`/busca?q=${encodeURIComponent(contexto.trim())}&mode=contexto`);
-    }, 2000);
+    }
   };
 
   return (
