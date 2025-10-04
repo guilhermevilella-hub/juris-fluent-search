@@ -1,7 +1,8 @@
 import { mockJurisprudencias, mockDocumentDetails, mockSynonyms, mockDocuments } from './mockData';
 
 // Get API credentials from Supabase securely
-const getApiCredentials = async (): Promise<{escavadorKey: string, openaiKey?: string}> => {
+// ADICIONADO "EXPORT" AQUI
+export const getApiCredentials = async (): Promise<{escavadorKey: string, openaiKey?: string}> => {
   const { supabase } = await import('@/integrations/supabase/client');
   
   try {
@@ -288,7 +289,7 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
         } else if (response.status === 402) {
           // If API returns 402 (no credit), use mock data
           console.warn('API credit exhausted, using mock data for document:', id);
-          const mockDoc = mockDocuments[id] || mockDocumentDetails[id as keyof typeof mockDocumentDetails];
+          const mockDoc = mockDocuments[id as keyof typeof mockDocuments] || mockDocumentDetails[id as keyof typeof mockDocumentDetails];
           if (mockDoc) {
             return mockDoc;
           }
@@ -304,7 +305,7 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
     
     // If no document type worked, try mock data
     console.warn('Document not found via API, checking mock data for:', id);
-    const mockDoc = mockDocuments[id] || mockDocumentDetails[id as keyof typeof mockDocumentDetails];
+    const mockDoc = mockDocuments[id as keyof typeof mockDocuments] || mockDocumentDetails[id as keyof typeof mockDocumentDetails];
     if (mockDoc) {
       return mockDoc;
     }
@@ -313,7 +314,7 @@ export async function getDocument(tipo: string, id: string): Promise<any> {
   } catch (error) {
     console.error("Erro ao buscar documento:", error);
     // Fallback to mock data on any error
-    const mockDoc = mockDocuments[id] || mockDocumentDetails[id as keyof typeof mockDocumentDetails];
+    const mockDoc = mockDocuments[id as keyof typeof mockDocuments] || mockDocumentDetails[id as keyof typeof mockDocumentDetails];
     if (mockDoc) {
       console.warn('Using mock document due to API error:', id);
       return mockDoc;
