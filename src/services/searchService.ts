@@ -24,7 +24,7 @@ function sanitizeSearchTerm(term: string): string {
   return term.replace(/[*+?^${}()|[\]\\]/g, '\\$&').trim();
 }
 
-async function generateSynonyms(query: string): Promise<string[]> {
+export async function generateSynonyms(query: string): Promise<string[]> {
   try {
     console.log('Generating synonyms for:', query);
     
