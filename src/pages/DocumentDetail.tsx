@@ -104,6 +104,10 @@ const DocumentDetail = () => {
     });
   };
 
+  const removeHtmlTags = (text: string) => {
+    return text.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+  };
+
   if (isLoading || !document) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -290,8 +294,11 @@ const DocumentDetail = () => {
                                           typeof document.ementa === 'object' ? JSON.stringify(document.ementa, null, 2) : 
                                           'Ementa não disponível';
                         
+                        // Remove HTML tags
+                        const cleanText = removeHtmlTags(ementaText);
+                        
                         // Split by double line breaks or common section markers
-                        const sections = ementaText.split(/\n\n+|\. (?=[A-Z][A-Z])/);
+                        const sections = cleanText.split(/\n\n+|\. (?=[A-Z][A-Z])/);
                         
                         return sections.map((section, index) => {
                           const trimmedSection = section.trim();
